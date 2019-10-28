@@ -38,3 +38,6 @@
 
 #files for tests
 *.tests
+
+#bin folder
+bin/

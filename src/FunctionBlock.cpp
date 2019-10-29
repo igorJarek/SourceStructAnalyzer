@@ -4,12 +4,13 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding)
 {
     int startYPos = 0;
     int maxWidth = 0;
-    int lineNumber = 1;
+    int line = 1;
     while(!rowedFile.isEOF())
     {
+        string lineNumer = to_string(line++) + ". ";
         sf::Text text;
         text.setFont(Resource::instance().getFuncBlockFont());
-        text.setString(rowedFile.getNextRow());
+        text.setString(lineNumer + rowedFile.getNextRow());
         text.setCharacterSize(charSize);
         text.setFillColor(sf::Color::Black);
         text.setPosition(0, startYPos);

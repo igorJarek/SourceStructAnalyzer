@@ -13,13 +13,13 @@ class Resource
         sf::Font funcBlockFont;
 
     public:
-        static Resource & instance()
+        static Resource& instance()
         {
             static Resource instance;
             return instance;
         }
 
-        sf::Font getFuncBlockFont() const { return funcBlockFont; }
+        sf::Font& getFuncBlockFont() { return funcBlockFont; }
 };
 
 #endif // RESOURCE_H

@@ -1,4 +1,4 @@
-#include "FunctionBlock.h"
+#include <FunctionBlock.h>
 
 FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding)
 {
@@ -8,7 +8,7 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding)
     while(!rowedFile.isEOF())
     {
         sf::Text text;
-        text.setFont(font);
+        text.setFont(Resource::instance().getFuncBlockFont());
         text.setString(rowedFile.getNextRow());
         text.setCharacterSize(charSize);
         text.setFillColor(sf::Color::Black);

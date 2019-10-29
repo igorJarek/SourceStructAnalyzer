@@ -5,8 +5,7 @@
 #include <list>
 
 #include <RowedFile.h>
-
-extern sf::Font font;
+#include <Resource.h>
 
 class FunctionBlock : public sf::Drawable, public sf::Transformable
 {

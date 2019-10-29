@@ -1,7 +1,8 @@
 #include <FunctionBlock.h>
 
-FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding)
+FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding, int borderThickness)
 {
+    setOrigin(-(padding+borderThickness), -(padding+borderThickness));
     int startYPos = 0;
     int maxWidth = 0;
     int line = 1;
@@ -10,7 +11,7 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding)
         string lineNumer = to_string(line++) + ". ";
         sf::Text text;
         text.setFont(Resource::instance().getFuncBlockFont());
-        text.setString(lineNumer + rowedFile.getNextRow());
+        text.setString(rowedFile.getNextRow());
         text.setCharacterSize(charSize);
         text.setFillColor(sf::Color::Black);
         text.setPosition(0, startYPos);
@@ -26,7 +27,7 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding)
     border.setSize(sf::Vector2f(maxWidth + (2*padding), startYPos + (2*padding)));
     border.setPosition(-padding, -padding);
     border.setFillColor(sf::Color::Transparent);
-    border.setOutlineThickness(4.f);
+    border.setOutlineThickness(borderThickness);
     border.setOutlineColor(sf::Color(128,0,0));
 }
 

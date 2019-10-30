@@ -2,6 +2,8 @@
 
 RowedFile::RowedFile(const string& fullFilePath)
 {
+    path = fullFilePath;
+
     fstream pFile;
     pFile.open(fullFilePath, fstream::in);
     if(!pFile.is_open())

@@ -6,17 +6,29 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding, in
     int startYPos = 0;
     int maxWidth = 0;
     int line = 1;
+
+    titlePath.setFont(Resource::instance().getFuncBlockFont());
+    titlePath.setString(rowedFile.getPath());
+    titlePath.setCharacterSize(charSize + 3);
+    titlePath.setFillColor(sf::Color::Red);
+    titlePath.setPosition(0, startYPos);
+
+    sf::FloatRect fr = titlePath.getGlobalBounds();
+    if(fr.width > maxWidth) maxWidth = fr.width;
+
+    startYPos += fr.height + 16; /* additional space between rows*/
+
     while(!rowedFile.isEOF())
     {
         string lineNumer = to_string(line++) + ". ";
         sf::Text text;
         text.setFont(Resource::instance().getFuncBlockFont());
-        text.setString(rowedFile.getNextRow());
+        text.setString(lineNumer + rowedFile.getNextRow());
         text.setCharacterSize(charSize);
         text.setFillColor(sf::Color::Black);
         text.setPosition(0, startYPos);
 
-        sf::FloatRect fr = text.getGlobalBounds();
+        fr = text.getGlobalBounds();
         if(fr.width > maxWidth) maxWidth = fr.width;
 
         startYPos += fr.height + 4; /* additional space between rows*/
@@ -39,6 +51,8 @@ FunctionBlock::~FunctionBlock()
 void FunctionBlock::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= getTransform();
+
+    target.draw(titlePath, states);
 
     for(sf::Text text : rows)
         target.draw(text, states);

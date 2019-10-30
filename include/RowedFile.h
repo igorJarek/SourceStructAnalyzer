@@ -33,8 +33,10 @@ class RowedFile
         bool isEmpty() const { return rows.empty(); }
         bool isEOF() const { return iterator == rows.end(); }
         string getNextRow();
+        string getPath() const { return path; }
 
     private:
+        string path;
         list<string>rows;
         list<string>::iterator iterator;
 };

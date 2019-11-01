@@ -1,6 +1,6 @@
 #include "ProcessFlow.h"
 
-Process::Process(int argc, char *argv[])
+ProcessFlow::ProcessFlow(int argc, char *argv[])
 {
     if(argc < 3 || argc > 3)
         throw ProcessFlowWrongParamCount();
@@ -14,12 +14,12 @@ Process::Process(int argc, char *argv[])
     mainFunctionName = string(argv[2]);
 }
 
-Process::~Process()
+ProcessFlow::~ProcessFlow()
 {
     //dtor
 }
 
-bool Process::isFileIsHeader(const string& extension)
+bool ProcessFlow::isFileIsHeader(const string& extension)
 {
     if(extension.compare("h") == 0 || extension.compare("hpp"))
         return true;
@@ -27,7 +27,7 @@ bool Process::isFileIsHeader(const string& extension)
         return false;
 }
 
-bool Process::isFileIsSource(const string& extension)
+bool ProcessFlow::isFileIsSource(const string& extension)
 {
     if(extension.compare("c") == 0 || extension.compare("cpp"))
         return true;
@@ -35,7 +35,7 @@ bool Process::isFileIsSource(const string& extension)
         return false;
 }
 
-bool Process::recursiveFolderSearch(const string& folderPath)
+bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     WIN32_FIND_DATA findDataStruct;
     string startDir = folderPath + "*.*";
@@ -95,4 +95,9 @@ bool Process::recursiveFolderSearch(const string& folderPath)
 
     FindClose(hFind);
     return true;
+}
+
+void ProcessFlow::openMainFile(const string& mainFilePath)
+{
+
 }

@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     sf::Vector2f moveCenterViewPoint {};
     bool leftMouseState = false;
 
-    Process process{argc, argv};
+    ProcessFlow process{argc, argv};
 
     RowedFile rowedFile("dwhcidevice.tests");
     FunctionBlock functionalBlock(rowedFile, std::pair<int, int>{20, 100});

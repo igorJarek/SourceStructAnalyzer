@@ -27,11 +27,11 @@ class ProcessFlowWrongParamCount : public ProcessFlowException
         virtual const char* what() noexcept { return "ProcessFlow : Program needs 2 params"; };
 };
 
-class Process
+class ProcessFlow
 {
     public:
-        Process(int argc, char *argv[]);
-        ~Process();
+        ProcessFlow(int argc, char *argv[]);
+        ~ProcessFlow();
 
         string getExePath() const { return exePath; }
         string getExeFolderPath() const { return exeFolderPath; }

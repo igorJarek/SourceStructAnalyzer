@@ -10,7 +10,7 @@
 class FunctionBlock : public sf::Drawable, public sf::Transformable
 {
     public:
-        FunctionBlock(RowedFile& rowedFile, int charSize = 9, int padding = 6, int borderThickness = 4);
+        FunctionBlock(RowedFile& rowedFile);
         ~FunctionBlock();
 
     private:

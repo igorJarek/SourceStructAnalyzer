@@ -1,15 +1,15 @@
 #include <FunctionBlock.h>
 
-FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding, int borderThickness)
+FunctionBlock::FunctionBlock(RowedFile& rowedFile)
 {
-    setOrigin(-(padding+borderThickness), -(padding+borderThickness));
+    setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     int startYPos = 0;
     int maxWidth = 0;
     int line = 1;
 
     titlePath.setFont(Resource::instance().getFuncBlockFont());
     titlePath.setString(rowedFile.getPath());
-    titlePath.setCharacterSize(charSize + 3);
+    titlePath.setCharacterSize(FB_CHAR_SIZE + 3);
     titlePath.setFillColor(sf::Color::Red);
     titlePath.setPosition(0, startYPos);
 
@@ -24,7 +24,7 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding, in
         sf::Text text;
         text.setFont(Resource::instance().getFuncBlockFont());
         text.setString(lineNumer + rowedFile.getNextRow());
-        text.setCharacterSize(charSize);
+        text.setCharacterSize(FB_CHAR_SIZE);
         text.setFillColor(sf::Color::Black);
         text.setPosition(0, startYPos);
 
@@ -36,10 +36,10 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, int charSize, int padding, in
         rows.push_front(text);
     }
 
-    border.setSize(sf::Vector2f(maxWidth + (2*padding), startYPos + (2*padding)));
-    border.setPosition(-padding, -padding);
+    border.setSize(sf::Vector2f(maxWidth + (2*FB_PADDING), startYPos + (2*FB_PADDING)));
+    border.setPosition(-FB_PADDING, -FB_PADDING);
     border.setFillColor(sf::Color::Transparent);
-    border.setOutlineThickness(borderThickness);
+    border.setOutlineThickness(FB_BORDER_THICKNESS);
     border.setOutlineColor(sf::Color(128,0,0));
 }
 

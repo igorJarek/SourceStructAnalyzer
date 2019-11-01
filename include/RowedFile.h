@@ -37,6 +37,8 @@ class RowedFile
         void resetFileReadedPtr() { iterator = rows.begin(); }
         string getNextRow();
         string getPath() const { return path; }
+        size_t getSize() const { return rows.size(); }
+
         pair<int, int> getFunctionPosition(const string& functionName);
 
     private:

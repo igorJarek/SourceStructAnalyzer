@@ -1,11 +1,11 @@
 #include <FunctionBlock.h>
 
-FunctionBlock::FunctionBlock(RowedFile& rowedFile)
+FunctionBlock::FunctionBlock(RowedFile& rowedFile, std::pair<int, int> range)
 {
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     int startYPos = 0;
     int maxWidth = 0;
-    int line = 1;
+    int line = 0;
 
     titlePath.setFont(Resource::instance().getFuncBlockFont());
     titlePath.setString(rowedFile.getPath());
@@ -20,7 +20,13 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile)
 
     while(!rowedFile.isEOF())
     {
-        string lineNumer = to_string(line++) + ". ";
+        line++;
+        if(line < range.first)
+            continue;
+        else if(line > range.second)
+            break;
+
+        string lineNumer = to_string(line) + ") ";
         sf::Text text;
         text.setFont(Resource::instance().getFuncBlockFont());
         text.setString(lineNumer + rowedFile.getNextRow());

@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     bool leftMouseState = false;
 
     RowedFile rowedFile("dwhcidevice.tests");
-    FunctionBlock functionalBlock(rowedFile);
+    FunctionBlock functionalBlock(rowedFile, std::pair<int, int>{20, 100});
     functionalBlock.setPosition(10, 10);
 
     pair<int, int> r = rowedFile.getFunctionPosition("DWHCIDeviceTransferStageAsync");

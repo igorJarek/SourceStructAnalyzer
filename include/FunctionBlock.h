@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <list>
+#include <utility>
 
 #include <RowedFile.h>
 #include <Resource.h>
@@ -10,7 +11,7 @@
 class FunctionBlock : public sf::Drawable, public sf::Transformable
 {
     public:
-        FunctionBlock(RowedFile& rowedFile);
+        FunctionBlock(RowedFile& rowedFile, std::pair<int, int> range);
         ~FunctionBlock();
 
     private:

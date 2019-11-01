@@ -1,17 +1,10 @@
 #include <SFML/Graphics.hpp>
-#include <windows.h>
-#include <map>
-#include <iostream>
 
 #include "version.h"
 
+#include <ProcessFlow.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
-#include <FilesTreeElement.h>
-
-bool recursiveFolderSearch(const string& folderPath, map<string, FilesTreeElement>& fTree);
-bool isFileIsHeader(const string& extension);
-bool isFileIsSource(const string& extension);
 
 int main(int argc, char *argv[])
 {
@@ -27,29 +20,13 @@ int main(int argc, char *argv[])
     sf::Vector2f moveCenterViewPoint {};
     bool leftMouseState = false;
 
+    Process process{argc, argv};
+
     RowedFile rowedFile("dwhcidevice.tests");
     FunctionBlock functionalBlock(rowedFile, std::pair<int, int>{20, 100});
     functionalBlock.setPosition(10, 10);
 
     pair<int, int> r = rowedFile.getFunctionPosition("DWHCIDeviceTransferStageAsync");
-
-    /*
-    /// building files, associative tree
-    ///               key                 ->              data
-    ///              string               ->         FilesTreeElement
-    ///    nazwa samego pliku np. usb     -> bezwzgledny adres do plików h i cpp (usb.h and usb.c)
-
-    string exePath = string(argv[0]);
-    string exeFolderPath = exePath.substr(0, exePath.find_last_of("\\") + 1);
-
-    string relativeFilePath = string(argv[1]);
-    string absoluteFilePath = exeFolderPath + relativeFilePath;
-
-    map<string, FilesTreeElement> filesTree;
-    bool ret = recursiveFolderSearch(exeFolderPath, filesTree);
-
-    cout << "Size of map : " << filesTree.size() << endl;
-    */
 
     while (window.isOpen())
     {
@@ -142,82 +119,4 @@ int main(int argc, char *argv[])
     }
 
     return 0;
-}
-
-bool recursiveFolderSearch(const string& folderPath, map<string, FilesTreeElement>& fTree)
-{
-    WIN32_FIND_DATA findDataStruct;
-    string startDir = folderPath + "*.*";
-    HANDLE hFind = FindFirstFile(startDir.c_str(), &findDataStruct);
-    if(hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
-               (strcmp(findDataStruct.cFileName, ".") == 0 || strcmp(findDataStruct.cFileName, "..") == 0))
-                continue;
-
-            if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                string nextDir = folderPath + findDataStruct.cFileName + "\\";
-                bool ret = recursiveFolderSearch(nextDir, fTree);
-                if(!ret)
-                {
-                    cout << "Unable to open directory (Error " << GetLastError() << ") : " << nextDir << endl;
-                    return false;
-                }
-            }
-            else
-            {
-                string absoluteFilePath = folderPath + findDataStruct.cFileName;
-                string fileWithExtension = findDataStruct.cFileName;
-                string fileWithoutExtension = fileWithExtension.substr(0, fileWithExtension.find_last_of("."));
-                string fileExtension = fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1);
-
-                try
-                {
-                    FilesTreeElement& element = fTree.at(fileWithoutExtension);
-                    if(element.isHeaderPathSet() && isFileIsSource(fileExtension))
-                        element.setSourcePath(absoluteFilePath);
-                    else if(element.isSourcePathSet() && isFileIsHeader(fileExtension))
-                        element.setHeaderPath(absoluteFilePath);
-                }
-                catch(const std::out_of_range& oor)
-                {
-                    FilesTreeElement element;
-
-                    if(isFileIsHeader(fileExtension))
-                        element.setHeaderPath(absoluteFilePath);
-                    else if(isFileIsSource(fileExtension))
-                        element.setSourcePath(absoluteFilePath);
-
-                    fTree.insert(pair<string, FilesTreeElement>(fileWithoutExtension, element));
-                }
-            }
-        }while(FindNextFile(hFind, &findDataStruct) != 0);
-    }
-    else
-    {
-        cout << "Unable to open directory (Error " << GetLastError() << ") : " << folderPath << endl;
-        return false;
-    }
-
-    FindClose(hFind);
-    return true;
-}
-
-bool isFileIsHeader(const string& extension)
-{
-    if(extension.compare("h") == 0 || extension.compare("hpp"))
-        return true;
-    else
-        return false;
-}
-
-bool isFileIsSource(const string& extension)
-{
-    if(extension.compare("c") == 0 || extension.compare("cpp"))
-        return true;
-    else
-        return false;
 }

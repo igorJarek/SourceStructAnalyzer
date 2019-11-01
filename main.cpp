@@ -27,10 +27,13 @@ int main(int argc, char *argv[])
     sf::Vector2f moveCenterViewPoint {};
     bool leftMouseState = false;
 
-    RowedFile rowedFile("main.tests");
+    RowedFile rowedFile("dwhcidevice.tests");
     FunctionBlock functionalBlock(rowedFile);
     functionalBlock.setPosition(10, 10);
 
+    pair<int, int> r = rowedFile.getFunctionPosition("DWHCIDeviceTransferStageAsync");
+
+    /*
     /// building files, associative tree
     ///               key                 ->              data
     ///              string               ->         FilesTreeElement
@@ -46,6 +49,7 @@ int main(int argc, char *argv[])
     bool ret = recursiveFolderSearch(exeFolderPath, filesTree);
 
     cout << "Size of map : " << filesTree.size() << endl;
+    */
 
     while (window.isOpen())
     {

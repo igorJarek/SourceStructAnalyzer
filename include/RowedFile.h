@@ -5,6 +5,8 @@
 #include <list>
 #include <string>
 #include <exception>
+#include <utility>
+#include <regex>
 
 using namespace std;
 
@@ -32,8 +34,10 @@ class RowedFile
 
         bool isEmpty() const { return rows.empty(); }
         bool isEOF() const { return iterator == rows.end(); }
+        void resetFileReadedPtr() { iterator = rows.begin(); }
         string getNextRow();
         string getPath() const { return path; }
+        pair<int, int> getFunctionPosition(const string& functionName);
 
     private:
         string path;

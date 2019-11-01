@@ -16,7 +16,7 @@ RowedFile::RowedFile(const string& fullFilePath)
         rows.push_back(row);
     }
 
-    iterator = rows.begin();
+    resetFileReadedPtr();
     pFile.close();
 }
 
@@ -35,4 +35,48 @@ string RowedFile::getNextRow()
     }
 
     return ret;
+}
+
+pair<int, int> RowedFile::getFunctionPosition(const string& functionName)
+{
+    regex declarationPattern(" *\\w+ *" + functionName + "{1}");
+    regex openBracket(" *\\{ *");
+    regex closeBracket(" *\\} *");
+
+    pair<int, int> result{0, 0};
+
+    bool stage[3] {false, false, false};
+    int currentLine = 0;
+    resetFileReadedPtr();
+
+    while(!isEOF())
+    {
+        currentLine++;
+
+        string input = getNextRow();
+        if(!stage[0] && regex_search(input, declarationPattern))
+        {
+            if(input.rfind(';') == string::npos)
+            {
+                result.first = currentLine;
+                stage[0] = true;
+            }
+
+            continue;
+        }
+
+        if(stage[0] && !stage[1] && regex_match(input, openBracket))
+        {
+            stage[1] = true;
+            continue;
+        }
+
+        if(stage[1] && !stage[2] && regex_match(input, closeBracket))
+        {
+            result.second = currentLine;
+            break;
+        }
+    }
+
+    return result;
 }

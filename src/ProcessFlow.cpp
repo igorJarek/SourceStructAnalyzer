@@ -2,13 +2,16 @@
 
 Process::Process(int argc, char *argv[])
 {
+    if(argc < 3 || argc > 3)
+        throw ProcessFlowWrongParamCount();
+
     exePath = string(argv[0]);
     exeFolderPath = exePath.substr(0, exePath.find_last_of("\\") + 1);
 
     relativeMainFilePath = string(argv[1]);
     absoluteMainFilePath = exeFolderPath + relativeMainFilePath;
 
-    mainFunction = string(argv[2]);
+    mainFunctionName = string(argv[2]);
 }
 
 Process::~Process()

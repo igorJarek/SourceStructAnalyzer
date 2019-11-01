@@ -5,10 +5,27 @@
 #include <map>
 #include <windows.h>
 #include <iostream>
+#include <exception>
 
 #include <FilesTreeElement.h>
 
 using namespace std;
+
+class ProcessFlowException
+{
+    public:
+        ProcessFlowException() noexcept = default;
+        virtual ~ProcessFlowException() noexcept = default;
+        virtual const char* what() noexcept = 0;
+};
+
+class ProcessFlowWrongParamCount : public ProcessFlowException
+{
+    public:
+        ProcessFlowWrongParamCount() noexcept = default;
+        virtual ~ProcessFlowWrongParamCount() noexcept = default;
+        virtual const char* what() noexcept { return "ProcessFlow : Program needs 2 params"; };
+};
 
 class Process
 {
@@ -29,7 +46,7 @@ class Process
         string exeFolderPath;
         string relativeMainFilePath;
         string absoluteMainFilePath;
-        string mainFunction;
+        string mainFunctionName;
 
         map<string, FilesTreeElement> filesTree;
 

@@ -6,8 +6,10 @@
 #include <windows.h>
 #include <iostream>
 #include <exception>
+#include <queue>
 
 #include <FilesTreeElement.h>
+#include <RowedFile.h>
 
 using namespace std;
 
@@ -40,18 +42,24 @@ class ProcessFlow
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
+        // stage 2
+        void openMainFile();
 
     private:
         string exePath;
         string exeFolderPath;
         string relativeMainFilePath;
         string absoluteMainFilePath;
-        string mainFunctionName;
+        int mainFunctionPosition;
 
         map<string, FilesTreeElement> filesTree;
+        queue<string> functionCallsQueue;
 
         bool isFileIsHeader(const string& extension);
         bool isFileIsSource(const string& extension);
+
+        bool isFunctionName(const string& functionName);
+        bool isFunctionParams(const string& functionParams);
 };
 
 #endif // PROCESS_H

@@ -2,7 +2,7 @@
 
 ProcessFlow::ProcessFlow(int argc, char *argv[])
 {
-    if(argc < 3 || argc > 3)
+    if(argc < 2 || argc > 3)
         throw ProcessFlowWrongParamCount();
 
     exePath = string(argv[0]);
@@ -11,7 +11,7 @@ ProcessFlow::ProcessFlow(int argc, char *argv[])
     relativeMainFilePath = string(argv[1]);
     absoluteMainFilePath = exeFolderPath + relativeMainFilePath;
 
-    mainFunctionName = string(argv[2]);
+    mainFunctionPosition = stoi(argv[2]);
 }
 
 ProcessFlow::~ProcessFlow()
@@ -97,7 +97,65 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
     return true;
 }
 
-void ProcessFlow::openMainFile(const string& mainFilePath)
+bool ProcessFlow::isFunctionName(const string& functionName)
 {
+    if(functionName.compare("if") == 0)
+        return false;
+    else if(functionName.compare("while") == 0)
+        return false;
+    else if(functionName.compare("switch") == 0)
+        return false;
+    else if(functionName.compare("sizeof") == 0)
+        return false;
 
+    return true;
+}
+
+bool ProcessFlow::isFunctionParams(const string& functionParams)
+{
+    // TODO
+    return true;
+}
+
+void ProcessFlow::openMainFile()
+{
+    RowedFile mainFile(relativeMainFilePath);
+    regex basicFuncDetectionPattern {"(\\w+) *\\("};
+    regex closeBracket(" *\\} *");
+
+    int lineNumber = 0;
+    string currentLine {};
+
+    while(!mainFile.isEOF())
+    {
+        currentLine = mainFile.getNextRow();
+        lineNumber++;
+
+        if(lineNumber < mainFunctionPosition)
+            continue;
+        else if(lineNumber == mainFunctionPosition)
+            cout << "Main function (" << lineNumber << ") : " << currentLine << endl;
+        else if (lineNumber > mainFunctionPosition)
+        {
+            if(regex_match(currentLine, closeBracket))
+                break;
+
+            cout << "Line : " << lineNumber << endl;
+            smatch result;
+            string::const_iterator searchStart(currentLine.cbegin());
+            while(regex_search(searchStart, currentLine.cend(), result, basicFuncDetectionPattern))
+            {
+                string functionName = result[1];
+                string functionParams = result.suffix();
+
+                if(isFunctionName(functionName) && isFunctionParams(functionParams))
+                {
+                    cout << "\tFunction detected : " << functionName << endl;
+                    functionCallsQueue.push(functionName);
+                }
+
+                searchStart = result.suffix().first;
+            }
+        }
+    }
 }

@@ -7,9 +7,12 @@
 #include <iostream>
 #include <exception>
 #include <queue>
+#include <vector>
+#include <list>
 
 #include <FilesTreeElement.h>
 #include <RowedFile.h>
+#include <FunctionBlock.h>
 
 using namespace std;
 
@@ -44,6 +47,8 @@ class ProcessFlow
         bool recursiveFolderSearch(const string& folderPath);
         // stage 2
         void openMainFile();
+        // stage 3
+        void iteratesCallsQueue();
 
     private:
         string exePath;
@@ -53,8 +58,10 @@ class ProcessFlow
         int mainFunctionPosition;
 
         map<string, FilesTreeElement> filesTree;
+        list<string> includeList;
         queue<string> functionCallsQueue;
         map<string, int> fuctionCallsMap;
+        vector<list<FunctionBlock>>stages;
 
         bool isFileIsHeader(const string& extension);
         bool isFileIsSource(const string& extension);

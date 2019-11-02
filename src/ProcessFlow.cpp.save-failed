@@ -137,13 +137,8 @@ void ProcessFlow::openMainFile()
             smatch result;
             if(regex_search(currentLine, result, includePattern))   // #include
             {
-                string fileInclude = result[4];
-                size_t fileIncludePos = fileInclude.rfind('/');
-                if(fileIncludePos != string::npos)
-                    fileInclude = fileInclude.substr(fileIncludePos + 1, string::npos);
-
-                cout << "\tInclude detected : " << fileInclude << endl;
-                includeList.push_back(fileInclude);
+                cout << "\tInclude detected : " << result[4] << endl;
+                includeList.push_back(result[4]);
                 continue;
             }
         }

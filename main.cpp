@@ -21,13 +21,13 @@ int main(int argc, char *argv[])
     bool leftMouseState = false;
 
     ProcessFlow process{argc, argv};
+    process.recursiveFolderSearch(process.getExeFolderPath());
     process.openMainFile();
+    process.iteratesCallsQueue();
 
     RowedFile rowedFile("main.tests");
     FunctionBlock functionalBlock(rowedFile, std::pair<int, int>{0, rowedFile.getSize()});
     functionalBlock.setPosition(10, 10);
-
-    //pair<int, int> r = rowedFile.getFunctionPosition("DWHCIDeviceTransferStageAsync");
 
     while (window.isOpen())
     {

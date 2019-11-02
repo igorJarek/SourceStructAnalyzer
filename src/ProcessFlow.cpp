@@ -191,12 +191,31 @@ void ProcessFlow::iteratesCallsQueue()
     {
         size_t stageSize = functionCallsQueue.size();
         string functionName {};
-        for(int i = 0; i < stageSize; i++)
+        for(size_t i = 0; i < stageSize; i++)
         {
             functionName = functionCallsQueue.front();
             functionCallsQueue.pop();
 
+            cout << "Search function definition : " << functionName << " .... " << endl;
 
+            // dummy method
+            for(map<string, FilesTreeElement>::iterator it = filesTree.begin(); it != filesTree.end(); ++it)
+            {
+                FilesTreeElement fte = it->second;
+                if(fte.isSourcePathSet())
+                {
+                    const string sourcePath = fte.getSourcePath();
+                    RowedFile rowedFile {sourcePath};
+                    pair<int, int> functionPosition = rowedFile.getFunctionPosition(functionName);
+                    if(functionPosition.first && functionPosition.second)
+                    {
+                        cout << " found in the -> " << sourcePath << endl;
+                        break;
+                    }
+                }
+                else
+                    cout << "\tFilesTreeElement dont have function : " << it->first << endl;
+            }
         }
     }while(!functionCallsQueue.empty());
 }

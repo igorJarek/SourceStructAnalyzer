@@ -20,8 +20,8 @@ class FilesTreeElement
         bool isSourcePathSet() const { return sourcePath.size() != 0; }
 
     private:
-        string headerPath;
-        string sourcePath;
+        string headerPath {};
+        string sourcePath {};
 };
 
 #endif // FILESTREEELEMENT_H

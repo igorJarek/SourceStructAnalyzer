@@ -150,8 +150,13 @@ void ProcessFlow::openMainFile()
 
                 if(isFunctionName(functionName) && isFunctionParams(functionParams))
                 {
-                    cout << "\tFunction detected : " << functionName << endl;
-                    functionCallsQueue.push(functionName);
+                    map<string, int>::iterator iterator = fuctionCallsMap.find(functionName);
+                    if (iterator == fuctionCallsMap.end())
+                    {
+                        cout << "\tFunction detected : " << functionName << endl;
+                        fuctionCallsMap.emplace(functionName, lineNumber);
+                        functionCallsQueue.push(functionName);
+                    }
                 }
 
                 searchStart = result.suffix().first;

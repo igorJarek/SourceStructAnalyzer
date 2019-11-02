@@ -54,6 +54,7 @@ class ProcessFlow
 
         map<string, FilesTreeElement> filesTree;
         queue<string> functionCallsQueue;
+        map<string, int> fuctionCallsMap;
 
         bool isFileIsHeader(const string& extension);
         bool isFileIsSource(const string& extension);

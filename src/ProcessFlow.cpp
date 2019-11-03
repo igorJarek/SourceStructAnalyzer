@@ -38,7 +38,7 @@ bool ProcessFlow::isFileIsSource(const string& extension)
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     WIN32_FIND_DATA findDataStruct;
-    string startDir = folderPath + "*.*";
+    string startDir {folderPath + "*.*"};
     HANDLE hFind = FindFirstFile(startDir.c_str(), &findDataStruct);
     if(hFind != INVALID_HANDLE_VALUE)
     {
@@ -50,7 +50,7 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 
             if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-                string nextDir = folderPath + findDataStruct.cFileName + "\\";
+                string nextDir {folderPath + findDataStruct.cFileName + "\\"};
                 bool ret = recursiveFolderSearch(nextDir);
                 if(!ret)
                 {
@@ -60,14 +60,15 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
             }
             else
             {
-                string absoluteFilePath = folderPath + findDataStruct.cFileName;
-                string fileWithExtension = findDataStruct.cFileName;
-                string fileWithoutExtension = fileWithExtension.substr(0, fileWithExtension.find_last_of("."));
-                string fileExtension = fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1);
+                string absoluteFilePath {folderPath + findDataStruct.cFileName};
+                string fileWithExtension {findDataStruct.cFileName};
+                string fileWithoutExtension {fileWithExtension.substr(0, fileWithExtension.find_last_of("."))};
+                string fileExtension {fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1)};
 
                 try
                 {
                     FilesTreeElement& element = filesTree.at(fileWithoutExtension);
+
                     if(element.isHeaderPathSet() && isFileIsSource(fileExtension))
                         element.setSourcePath(absoluteFilePath);
                     else if(element.isSourcePathSet() && isFileIsHeader(fileExtension))

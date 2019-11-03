@@ -26,12 +26,22 @@ class rowerFileWrongFilePath : public rowerFileException
         virtual const char* what() noexcept { return "Rowed File : wrong file path"; };
 };
 
+class rowerFileHasNotCreated : public rowerFileException
+{
+    public:
+        rowerFileHasNotCreated() noexcept = default;
+        virtual ~rowerFileHasNotCreated() noexcept = default;
+        virtual const char* what() noexcept { return "Rowed File : rowed file hasn't created"; };
+};
+
 class RowedFile
 {
     public:
+        RowedFile() = default;
         RowedFile(const string& fullFilePath);
         ~RowedFile();
 
+        void create(const string& fullFilePath);
         bool isEmpty() const { return rows.empty(); }
         bool isEOF() const { return iterator == rows.end(); }
         void resetFileReadedPtr() { iterator = rows.begin(); }
@@ -42,9 +52,10 @@ class RowedFile
         pair<int, int> getFunctionPosition(const string& functionName);
 
     private:
-        string path;
+        string path {};
         list<string>rows;
-        list<string>::iterator iterator;
+        list<string>::iterator iterator {};
+        bool loaded = false;
 };
 
 #endif // ROWEDFILE_H

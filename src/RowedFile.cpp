@@ -2,22 +2,7 @@
 
 RowedFile::RowedFile(const string& fullFilePath)
 {
-    path = fullFilePath;
-
-    fstream pFile;
-    pFile.open(fullFilePath, fstream::in);
-    if(!pFile.is_open())
-        throw rowerFileWrongFilePath();
-
-    while(!pFile.eof())
-    {
-        std::string row;
-        getline(pFile, row);
-        rows.push_back(row);
-    }
-
-    resetFileReadedPtr();
-    pFile.close();
+    create(fullFilePath);
 }
 
 RowedFile::~RowedFile()
@@ -25,10 +10,34 @@ RowedFile::~RowedFile()
     //dtor
 }
 
+void RowedFile::create(const string& fullFilePath)
+{
+    if(!loaded)
+    {
+        path = fullFilePath;
+
+        fstream pFile;
+        pFile.open(fullFilePath, fstream::in);
+        if(!pFile.is_open())
+            throw rowerFileWrongFilePath();
+
+        while(!pFile.eof())
+        {
+            std::string row;
+            getline(pFile, row);
+            rows.push_back(row);
+        }
+
+        resetFileReadedPtr();
+        pFile.close();
+        loaded = true;
+    }
+}
+
 string RowedFile::getNextRow()
 {
     string ret;
-    if(iterator != rows.end())
+    if(loaded && iterator != rows.end())
     {
        ret = *iterator;
        iterator++;
@@ -39,6 +48,9 @@ string RowedFile::getNextRow()
 
 pair<int, int> RowedFile::getFunctionPosition(const string& functionName)
 {
+    if(!loaded)
+        throw rowerFileHasNotCreated();
+
     regex declarationPattern(" *\\w+ *" + functionName + "{1}");
     regex openBracket(" *\\{ *");
     regex closeBracket(" *\\} *");

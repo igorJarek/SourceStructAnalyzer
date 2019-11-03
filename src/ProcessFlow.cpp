@@ -28,7 +28,7 @@ ProcessFlow::~ProcessFlow()
 
 bool ProcessFlow::isFileIsHeader(const string& extension)
 {
-    if(extension.compare("h") == 0 || extension.compare("hpp"))
+    if(extension.compare("h") == 0 || extension.compare("hpp") == 0)
         return true;
     else
         return false;
@@ -36,7 +36,7 @@ bool ProcessFlow::isFileIsHeader(const string& extension)
 
 bool ProcessFlow::isFileIsSource(const string& extension)
 {
-    if(extension.compare("c") == 0 || extension.compare("cpp"))
+    if(extension.compare("c") == 0 || extension.compare("cpp") == 0)
         return true;
     else
         return false;
@@ -44,7 +44,7 @@ bool ProcessFlow::isFileIsSource(const string& extension)
 
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
-    Log << "Stage 1 : recursiveFolderSearch" << Logger::endl;
+    Log << "Stage 1 : recursiveFolderSearch -> " << folderPath << Logger::endl;
     WIN32_FIND_DATA findDataStruct;
     string startDir {folderPath + "*.*"};
     HANDLE hFind = FindFirstFile(startDir.c_str(), &findDataStruct);
@@ -77,10 +77,28 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
                 {
                     FilesTreeElement& element = filesTree.at(fileWithoutExtension);
 
-                    if(element.isHeaderPathSet() && isFileIsSource(fileExtension))
-                        element.setSourcePath(absoluteFilePath);
-                    else if(element.isSourcePathSet() && isFileIsHeader(fileExtension))
-                        element.setHeaderPath(absoluteFilePath);
+                    if(isFileIsSource(fileExtension))
+                    {
+                        if(element.isSourcePathSet())
+                        {
+                           Log << "\tDuplicated source file : " << Logger::endl;
+                           Log << "\t\tSet : " << element.getSourcePath() << Logger::endl;
+                           Log << "\t\tWould be : " << absoluteFilePath << Logger::endl;
+                        }
+                        else
+                            element.setSourcePath(absoluteFilePath);
+                    }
+                    else if(isFileIsHeader(fileExtension))
+                    {
+                        if(element.isHeaderPathSet())
+                        {
+                           Log << "\tDuplicated header file : " << Logger::endl;
+                           Log << "\t\tSet : " << element.getHeaderPath() << Logger::endl;
+                           Log << "\t\tWould be : " << absoluteFilePath << Logger::endl;
+                        }
+                        else
+                            element.setSourcePath(absoluteFilePath);
+                    }
                 }
                 catch(const std::out_of_range& oor)
                 {
@@ -221,12 +239,9 @@ void ProcessFlow::iteratesCallsQueue()
                     if(functionPosition.first && functionPosition.second)
                     {
                         Log << " found in the -> " << sourcePath << Logger::endl;
-                        cout <<  << endl;
                         break;
                     }
                 }
-                else
-                    Log << "\tFilesTreeElement dont have function : " << it->first << Logger::endl;
             }
         }
     }while(!functionCallsQueue.empty());

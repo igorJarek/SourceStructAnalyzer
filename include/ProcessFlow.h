@@ -13,6 +13,7 @@
 #include <FilesTreeElement.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
+#include <Logger.h>
 
 using namespace std;
 

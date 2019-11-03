@@ -5,7 +5,6 @@
 #include <ProcessFlow.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
-#include <Logger.h>
 
 int main(int argc, char *argv[])
 {

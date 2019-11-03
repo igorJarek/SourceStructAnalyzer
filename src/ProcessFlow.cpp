@@ -219,6 +219,12 @@ void ProcessFlow::iteratesCallsQueue()
     do
     {
         size_t stageSize = functionCallsQueue.size();
+        if(stageSize)
+        {
+            list<FunctionBlock> stage;
+            stages.push_back(stage);
+        }
+
         string functionName {};
         for(size_t i = 0; i < stageSize; i++)
         {
@@ -234,11 +240,19 @@ void ProcessFlow::iteratesCallsQueue()
                 if(fte.isSourcePathSet())
                 {
                     const string sourcePath = fte.getSourcePath();
-                    RowedFile rowedFile {sourcePath};
+                    RowedFile rowedFile = fte.getSourceFile();
                     pair<int, int> functionPosition = rowedFile.getFunctionPosition(functionName);
                     if(functionPosition.first && functionPosition.second)
                     {
                         Log << " found in the -> " << sourcePath << Logger::endl;
+
+                        rowedFile.resetFileReadedPtr();
+                        FunctionBlock functionalBlock(rowedFile, functionPosition);
+                        list<FunctionBlock>& currentStage = stages.back();
+                        currentStage.push_back(functionalBlock);
+
+                        // analize founded file analyze(rowedFile, pos)
+
                         break;
                     }
                 }

@@ -148,6 +148,7 @@ void ProcessFlow::openMainFile()
 {
     Log << "Stage 2 : openMainFile" << Logger::endl;
     RowedFile mainFile(relativeMainFilePath);
+
     regex includePattern {"(\\t*| *)#include(\\t*| *)(\\<|\\\")([a-zA-Z0-9_/]+)(\\.h|\\.hpp)(\\>|\\\")"};
     regex basicFuncDetectionPattern {"(\\w+) *\\("};
     regex closeBracket(" *\\} *");
@@ -225,13 +226,13 @@ void ProcessFlow::iteratesCallsQueue()
             stages.push_back(stage);
         }
 
-        string functionName {};
+        string currentFunctionName {};
         for(size_t i = 0; i < stageSize; i++)
         {
-            functionName = functionCallsQueue.front();
+            currentFunctionName = functionCallsQueue.front();
             functionCallsQueue.pop();
 
-            Log << "\tSearching for function definition : " << functionName << " .... ";
+            Log << "\tSearching for function definition : " << currentFunctionName << " .... ";
 
             // dummy method
             for(map<string, FilesTreeElement>::iterator it = filesTree.begin(); it != filesTree.end(); ++it)
@@ -241,17 +242,47 @@ void ProcessFlow::iteratesCallsQueue()
                 {
                     const string sourcePath = fte.getSourcePath();
                     RowedFile rowedFile = fte.getSourceFile();
-                    pair<int, int> functionPosition = rowedFile.getFunctionPosition(functionName);
+                    pair<int, int> functionPosition = rowedFile.getFunctionPosition(currentFunctionName);
                     if(functionPosition.first && functionPosition.second)
                     {
                         Log << " found in the -> " << sourcePath << Logger::endl;
+                        Log << "\t\tSearching for function calls .... " << Logger::endl;
+
+                        regex basicFuncDetectionPattern {"(\\w+) *\\("};
 
                         rowedFile.resetFileReadedPtr();
+                        rowedFile.moveFileReaderPtr(functionPosition.first);
+
+                        string currentLine {};
+                        smatch result;
+                        for(int foundedFileIndex = functionPosition.first; foundedFileIndex < functionPosition.second; foundedFileIndex++)
+                        {
+                            currentLine = rowedFile.getNextRow();
+                            string::const_iterator searchStart(currentLine.cbegin());
+                            while(regex_search(searchStart, currentLine.cend(), result, basicFuncDetectionPattern)) // functions call
+                            {
+                                string functionName = result[1];
+                                string functionParams = result.suffix();
+
+                                if(isFunctionName(functionName) && isFunctionParams(functionParams))
+                                {
+                                    map<string, int>::iterator iterator = fuctionCallsMap.find(functionName);
+                                    if (iterator == fuctionCallsMap.end())
+                                    {
+                                        Log << "\t\t\tFunction detected : " << functionName << Logger::endl;
+                                        fuctionCallsMap.emplace(functionName, foundedFileIndex);
+                                        functionCallsQueue.push(functionName);
+                                    }
+                                }
+
+                                searchStart = result.suffix().first;
+                            }
+                        }
+
+                        /*rowedFile.resetFileReadedPtr();
                         FunctionBlock functionalBlock(rowedFile, functionPosition);
                         list<FunctionBlock>& currentStage = stages.back();
-                        currentStage.push_back(functionalBlock);
-
-                        // analize founded file analyze(rowedFile, pos)
+                        currentStage.push_back(functionalBlock);*/
 
                         break;
                     }

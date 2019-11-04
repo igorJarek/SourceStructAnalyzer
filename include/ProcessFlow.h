@@ -50,6 +50,8 @@ class ProcessFlow
         void openMainFile();
         // stage 3
         void iteratesCallsQueue();
+        //stage 4
+        void prepareFunctionBlocks();
 
     private:
         string exePath;

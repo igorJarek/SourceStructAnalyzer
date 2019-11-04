@@ -291,3 +291,40 @@ void ProcessFlow::iteratesCallsQueue()
         }
     }while(!functionCallsQueue.empty());
 }
+
+void ProcessFlow::prepareFunctionBlocks()
+{
+    unsigned int startXPos = 0;
+    unsigned int startYPos = 0;
+
+    for(list<FunctionBlock> fbList : stages)
+    {
+        unsigned int stageXPos = 0;
+        for(FunctionBlock fb : fbList)
+        {
+            fb.setPosition(startXPos, 0);
+            sf::Vector2u pos = fb.getSize();
+            if(pos.x > stageXPos)
+                stageXPos = pos.x;
+        }
+
+        startXPos += stageXPos;
+    }
+
+    for(list<FunctionBlock> fbList : stages)
+    {
+        unsigned int stageXPos = 0;
+        unsigned int stageYPos = 0;
+        for(FunctionBlock fb : fbList)
+        {
+            fb.setPosition(startXPos, stageYPos);
+            sf::Vector2u pos = fb.getSize();
+            if(pos.x > stageXPos)
+                stageXPos = pos.x;
+
+            stageYPos += pos.y + 15;
+        }
+
+        startXPos += stageXPos;
+    }
+}

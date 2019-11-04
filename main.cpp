@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     process.recursiveFolderSearch(process.getExeFolderPath());
     process.openMainFile();
     process.iteratesCallsQueue();
+    process.prepareFunctionBlocks();
 
     RowedFile rowedFile("main.tests");
     FunctionBlock functionalBlock(rowedFile, std::pair<int, int>{0, rowedFile.getSize()});

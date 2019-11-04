@@ -14,9 +14,12 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         FunctionBlock(RowedFile& rowedFile, std::pair<int, int> range);
         ~FunctionBlock();
 
+        sf::Vector2u getSize() { return size; }
+
     private:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+        sf::Vector2u size;
         sf::Text titlePath;
 
         std::list<sf::Text> rows;

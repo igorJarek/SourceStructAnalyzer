@@ -47,6 +47,9 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, std::pair<int, int> range)
     border.setFillColor(sf::Color::Transparent);
     border.setOutlineThickness(FB_BORDER_THICKNESS);
     border.setOutlineColor(sf::Color(128,0,0));
+
+    size.x = maxWidth + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
+    size.y = startYPos + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
 }
 
 FunctionBlock::~FunctionBlock()

@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
         }
 
         window.clear(sf::Color::White);
-        window.draw(functionalBlock);
+        //window.draw(functionalBlock);
+        process.drawStages(window);
         window.display();
     }
 

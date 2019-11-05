@@ -312,3 +312,14 @@ void ProcessFlow::prepareFunctionBlocks()
         startXPos += stageXPos;
     }
 }
+
+void ProcessFlow::drawStages(sf::RenderWindow& window)
+{
+    for(list<FunctionBlock> fbList : stages)
+    {
+        for(FunctionBlock fb : fbList)
+        {
+            window.draw(fb);
+        }
+    }
+}

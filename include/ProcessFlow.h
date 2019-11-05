@@ -52,6 +52,8 @@ class ProcessFlow
         void iteratesCallsQueue();
         //stage 4
         void prepareFunctionBlocks();
+        // stage 5
+        void drawStages(sf::RenderWindow& window);
 
     private:
         string exePath;

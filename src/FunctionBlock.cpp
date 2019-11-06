@@ -2,6 +2,7 @@
 
 FunctionBlock::FunctionBlock(RowedFile& rowedFile, std::pair<int, int> range)
 {
+    rowedFile.resetFileReadedPtr();
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     int startYPos = 0;
     int maxWidth = 0;

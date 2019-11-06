@@ -279,10 +279,9 @@ void ProcessFlow::iteratesCallsQueue()
                             }
                         }
 
-                        /*rowedFile.resetFileReadedPtr();
                         FunctionBlock functionalBlock(rowedFile, functionPosition);
                         list<FunctionBlock>& currentStage = stages.back();
-                        currentStage.push_back(functionalBlock);*/
+                        currentStage.push_back(functionalBlock);
 
                         break;
                     }
@@ -294,22 +293,28 @@ void ProcessFlow::iteratesCallsQueue()
 
 void ProcessFlow::prepareFunctionBlocks()
 {
+    Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
     unsigned int startXPos = 0;
-    for(list<FunctionBlock> fbList : stages)
+    unsigned int stage = 1;
+    for(list<FunctionBlock>& fbList : stages)
     {
+        Log << "\tCurrent stage : " << stage << Logger::endl;
+        Log << "\tStart X stage : " << startXPos << Logger::endl;
         unsigned int stageXPos = 0;
         unsigned int stageYPos = 0;
-        for(FunctionBlock fb : fbList)
+        for(FunctionBlock& fb : fbList)
         {
+            Log << "\tY stage : " << stageYPos << Logger::endl;
             fb.setPosition(startXPos, stageYPos);
-            sf::Vector2u pos = fb.getSize();
-            if(pos.x > stageXPos)
-                stageXPos = pos.x;
+            sf::Vector2u size = fb.getSize();
+            if(size.x > stageXPos)
+                stageXPos = size.x;
 
-            stageYPos += pos.y + 15;
+            stageYPos += size.y + 15;
         }
 
-        startXPos += stageXPos;
+        startXPos += stageXPos + 30;
+        stage++;
     }
 }
 
@@ -317,7 +322,7 @@ void ProcessFlow::drawStages(sf::RenderWindow& window)
 {
     for(list<FunctionBlock> fbList : stages)
     {
-        for(FunctionBlock fb : fbList)
+        for(FunctionBlock& fb : fbList)
         {
             window.draw(fb);
         }

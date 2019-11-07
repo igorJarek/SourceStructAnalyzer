@@ -60,7 +60,8 @@ pair<int, int> RowedFile::getFunctionPosition(const string& functionName)
     if(!loaded)
         throw rowerFileHasNotCreated();
 
-    regex declarationPattern(" *\\w+ *" + functionName + "{1}");
+    //regex declarationPattern(" *\\w+ +" + functionName + "{1}");
+    regex declarationPattern(" *\\w+ +" + functionName + " *\\(");
     regex openBracket(" *\\{ *");
     regex closeBracket(" *\\} *");
 

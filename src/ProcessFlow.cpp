@@ -209,7 +209,8 @@ void ProcessFlow::openMainFile()
     }
 
     list<FunctionBlock> stage0;
-    FunctionBlock fb {mainFile, std::pair<int, int>{0, mainFile.getSize()}};
+    mainFile.resetFileReadedPtr();
+    FunctionBlock fb {mainFile, "main function", std::pair<int, int>{0, mainFile.getSize()}};
     stage0.push_back(fb);
     stages.push_back(stage0);
 }
@@ -279,7 +280,8 @@ void ProcessFlow::iteratesCallsQueue()
                             }
                         }
 
-                        FunctionBlock functionalBlock(rowedFile, functionPosition);
+                        rowedFile.resetFileReadedPtr();
+                        FunctionBlock functionalBlock(rowedFile, currentFunctionName, functionPosition);
                         list<FunctionBlock>& currentStage = stages.back();
                         currentStage.push_back(functionalBlock);
 

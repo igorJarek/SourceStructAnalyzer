@@ -26,10 +26,6 @@ int main(int argc, char *argv[])
     process.iteratesCallsQueue();
     process.prepareFunctionBlocks();
 
-    RowedFile rowedFile("main.tests");
-    FunctionBlock functionalBlock(rowedFile, std::pair<int, int>{0, rowedFile.getSize()});
-    functionalBlock.setPosition(10, 10);
-
     while (window.isOpen())
     {
         sf::Event event;
@@ -116,7 +112,6 @@ int main(int argc, char *argv[])
         }
 
         window.clear(sf::Color::White);
-        //window.draw(functionalBlock);
         process.drawStages(window);
         window.display();
     }

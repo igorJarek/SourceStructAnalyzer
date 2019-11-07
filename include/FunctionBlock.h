@@ -11,7 +11,7 @@
 class FunctionBlock : public sf::Drawable, public sf::Transformable
 {
     public:
-        FunctionBlock(RowedFile& rowedFile, std::pair<int, int> range);
+        FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range);
         ~FunctionBlock();
 
         sf::Vector2u getSize() { return size; }
@@ -21,6 +21,7 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
 
         sf::Vector2u size;
         sf::Text titlePath;
+        sf::Text searchingFunction;
 
         std::list<sf::Text> rows;
         sf::RectangleShape border;

@@ -345,8 +345,8 @@ void ProcessFlow::prepareFunctionBlocks()
             fb.move(0, moveY);
     }
 
-    Log << "\Size of stages X : " << startXPos << Logger::endl;
-    Log << "\Size of stages Y : " << maxStageHeight << Logger::endl;
+    Log << "\tSize of stages X : " << startXPos << Logger::endl;
+    Log << "\tSize of stages Y : " << maxStageHeight << Logger::endl;
 }
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)
@@ -356,6 +356,26 @@ void ProcessFlow::drawStages(sf::RenderWindow& window)
         for(FunctionBlock& fb : fbList)
         {
             window.draw(fb);
+        }
+    }
+}
+
+void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
+{
+    if(stages.size() > 0)
+    {
+        list<FunctionBlock>& firstStage = stages[0];
+        if(firstStage.size() == 1)
+        {
+            FunctionBlock& mainFuntion = firstStage.front();
+
+            sf::Vector2f fbPosition = mainFuntion.getPosition();
+            sf::Vector2u fbSize = mainFuntion.getSize();
+            sf::Vector2u windowSize = window.getSize();
+
+            sf::View currentView{window.getView()};
+            currentView.setCenter((windowSize.x - fbSize.x) / 2, fbPosition.y + 30);
+            window.setView(currentView);
         }
     }
 }

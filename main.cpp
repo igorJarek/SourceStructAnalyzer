@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     process.openMainFile();
     process.iteratesCallsQueue();
     process.prepareFunctionBlocks();
+    process.lootAtMainFunctionalBlock(window);
 
     while (window.isOpen())
     {

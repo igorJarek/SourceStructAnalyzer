@@ -54,6 +54,8 @@ class ProcessFlow
         void prepareFunctionBlocks();
         // stage 5
         void drawStages(sf::RenderWindow& window);
+        //stage 6
+        void lootAtMainFunctionalBlock(sf::RenderWindow& window);
 
     private:
         string exePath;

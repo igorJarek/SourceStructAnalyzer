@@ -296,28 +296,57 @@ void ProcessFlow::iteratesCallsQueue()
 void ProcessFlow::prepareFunctionBlocks()
 {
     Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
-    unsigned int startXPos = 0;
-    unsigned int stage = 1;
+    unsigned int sumYPos[stages.size()] = {0};
+    unsigned int maxStageHeight {0};
+    unsigned int maxStageHeightIndex {0};
+    unsigned int currentStage {0};
+    unsigned int startXPos = {0};
+
     for(list<FunctionBlock>& fbList : stages)
     {
-        Log << "\tCurrent stage : " << stage << Logger::endl;
-        Log << "\tStart X stage : " << startXPos << Logger::endl;
-        unsigned int stageXPos = 0;
-        unsigned int stageYPos = 0;
+        unsigned int stageWidth {0};
+        unsigned int stageYPos {0};
         for(FunctionBlock& fb : fbList)
         {
-            Log << "\tY stage : " << stageYPos << Logger::endl;
             fb.setPosition(startXPos, stageYPos);
             sf::Vector2u size = fb.getSize();
-            if(size.x > stageXPos)
-                stageXPos = size.x;
+            if(size.x > stageWidth)
+                stageWidth = size.x;
 
-            stageYPos += size.y + 15;
+            stageYPos += size.y + ST_Y_GAP;
         }
 
-        startXPos += stageXPos + 30;
-        stage++;
+        stageYPos -= ST_Y_GAP;
+
+        if(stageYPos > maxStageHeight)
+        {
+            maxStageHeightIndex = currentStage;
+            maxStageHeight = stageYPos;
+        }
+
+        sumYPos[currentStage++] += stageYPos;
+        startXPos += stageWidth + ST_X_GAP;
     }
+
+    currentStage = 0;
+    for(list<FunctionBlock>& fbList : stages)
+    {
+        if(currentStage == maxStageHeightIndex)
+        {
+            currentStage++;
+            continue;
+        }
+
+        unsigned int currentYHeight = sumYPos[currentStage++];
+        unsigned int delta = maxStageHeight - currentYHeight;
+        unsigned int moveY = delta/2;
+
+        for(FunctionBlock& fb : fbList)
+            fb.move(0, moveY);
+    }
+
+    Log << "\Size of stages X : " << startXPos << Logger::endl;
+    Log << "\Size of stages Y : " << maxStageHeight << Logger::endl;
 }
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)

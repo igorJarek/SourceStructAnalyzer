@@ -1,6 +1,6 @@
 #include <FunctionBlock.h>
 
-FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range)
+FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range, std::list<unsigned int>& detectedFuntions)
 {
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     int startYPos = 0;
@@ -64,6 +64,9 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, s
 
     size.x = maxWidth + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
     size.y = startYPos + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
+
+    fileRange = range;
+    funtionLineDetectedList = detectedFuntions;
 }
 
 FunctionBlock::~FunctionBlock()

@@ -50,11 +50,11 @@ class ProcessFlow
         void openMainFile();
         // stage 3
         void iteratesCallsQueue();
-        //stage 4
+        // stage 4
         void prepareFunctionBlocks();
         // stage 5
         void drawStages(sf::RenderWindow& window);
-        //stage 6
+        // stage 6
         void lootAtMainFunctionalBlock(sf::RenderWindow& window);
 
     private:

@@ -148,6 +148,7 @@ void ProcessFlow::openMainFile()
 {
     Log << "Stage 2 : openMainFile" << Logger::endl;
     RowedFile mainFile(relativeMainFilePath);
+    std::list<unsigned int> functionDetectedLines;
 
     regex includePattern {"(\\t*| *)#include(\\t*| *)(\\<|\\\")([a-zA-Z0-9_/]+)(\\.h|\\.hpp)(\\>|\\\")"};
     regex basicFuncDetectionPattern {"(\\w+) *\\("};
@@ -200,6 +201,7 @@ void ProcessFlow::openMainFile()
                         Log << "\t\tFunction detected : " << functionName << Logger::endl;
                         fuctionCallsMap.emplace(functionName, lineNumber);
                         functionCallsQueue.push(functionName);
+                        functionDetectedLines.push_back(lineNumber);
                     }
                 }
 
@@ -210,7 +212,7 @@ void ProcessFlow::openMainFile()
 
     list<FunctionBlock> stage0;
     mainFile.resetFileReadedPtr();
-    FunctionBlock fb {mainFile, "main function", std::pair<int, int>{0, mainFile.getSize()}};
+    FunctionBlock fb {mainFile, "main function", std::pair<int, int>{0, mainFile.getSize()}, functionDetectedLines};
     stage0.push_back(fb);
     stages.push_back(stage0);
 }
@@ -254,6 +256,7 @@ void ProcessFlow::iteratesCallsQueue()
                         rowedFile.resetFileReadedPtr();
                         rowedFile.moveFileReaderPtr(functionPosition.first);
 
+                        std::list<unsigned int> functionDetectedLines;
                         string currentLine {};
                         smatch result;
                         for(int foundedFileIndex = functionPosition.first; foundedFileIndex < functionPosition.second; foundedFileIndex++)
@@ -273,6 +276,7 @@ void ProcessFlow::iteratesCallsQueue()
                                         Log << "\t\t\tFunction detected : " << functionName << Logger::endl;
                                         fuctionCallsMap.emplace(functionName, foundedFileIndex);
                                         functionCallsQueue.push(functionName);
+                                        functionDetectedLines.push_back(foundedFileIndex);
                                     }
                                 }
 
@@ -281,7 +285,7 @@ void ProcessFlow::iteratesCallsQueue()
                         }
 
                         rowedFile.resetFileReadedPtr();
-                        FunctionBlock functionalBlock(rowedFile, currentFunctionName, functionPosition);
+                        FunctionBlock functionalBlock(rowedFile, currentFunctionName, functionPosition, functionDetectedLines);
                         list<FunctionBlock>& currentStage = stages.back();
                         currentStage.push_back(functionalBlock);
 

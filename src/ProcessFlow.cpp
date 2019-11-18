@@ -300,57 +300,143 @@ void ProcessFlow::iteratesCallsQueue()
 void ProcessFlow::prepareFunctionBlocks()
 {
     Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
-    unsigned int sumYPos[stages.size()] = {0};
-    unsigned int maxStageHeight {0};
-    unsigned int maxStageHeightIndex {0};
-    unsigned int currentStage {0};
-    unsigned int startXPos = {0};
 
-    for(list<FunctionBlock>& fbList : stages)
+    // get stages info (max height stage, stages width and height)
+    uint64_t maxHeightStage {0};
+    sf::Vector2u stagesInfo[stages.size()];
+
+    for(size_t stageListIndex {0}; stageListIndex < stages.size(); ++stageListIndex)
     {
-        unsigned int stageWidth {0};
-        unsigned int stageYPos {0};
+        list<FunctionBlock>& fbList = stages[stageListIndex];
         for(FunctionBlock& fb : fbList)
         {
-            fb.setPosition(startXPos, stageYPos);
-            sf::Vector2u size = fb.getSize();
-            if(size.x > stageWidth)
-                stageWidth = size.x;
-
-            stageYPos += size.y + ST_Y_GAP;
+            sf::Vector2u fbSize = fb.getSize();
+            stagesInfo[stageListIndex].y += fbSize.y + ST_Y_GAP;
+            if(fbSize.x > stagesInfo[stageListIndex].x)
+                stagesInfo[stageListIndex].x = fbSize.x;
         }
 
-        stageYPos -= ST_Y_GAP;
+        stagesInfo[stageListIndex].y -= ST_Y_GAP;
 
-        if(stageYPos > maxStageHeight)
-        {
-            maxStageHeightIndex = currentStage;
-            maxStageHeight = stageYPos;
-        }
-
-        sumYPos[currentStage++] += stageYPos;
-        startXPos += stageWidth + ST_X_GAP;
+        if(stagesInfo[stageListIndex].y > maxHeightStage)
+            maxHeightStage = stagesInfo[stageListIndex].y;
     }
 
-    currentStage = 0;
-    for(list<FunctionBlock>& fbList : stages)
+    // set initial positions
+    Log << "\tSet Initial Positions" << Logger::endl;
+    uint64_t xPosition {0};
+    for(size_t stageListIndex {0}; stageListIndex < stages.size(); ++stageListIndex)
     {
-        if(currentStage == maxStageHeightIndex)
+        list<FunctionBlock>& fbList = stages[stageListIndex];
+
+        uint64_t yPosition = (maxHeightStage - stagesInfo[stageListIndex].y) / 2;
+        for(FunctionBlock& fb : fbList)
         {
-            currentStage++;
-            continue;
+            Log << "\t\tFB Pos x : " << xPosition << " y : " << yPosition << Logger::endl;
+            fb.setPosition(xPosition, yPosition);
+            yPosition += fb.getSize().y + ST_Y_GAP;
         }
 
-        unsigned int currentYHeight = sumYPos[currentStage++];
-        unsigned int delta = maxStageHeight - currentYHeight;
-        unsigned int moveY = delta/2;
-
-        for(FunctionBlock& fb : fbList)
-            fb.move(0, moveY);
+        xPosition += stagesInfo[stageListIndex].x;
     }
 
-    Log << "\tSize of stages X : " << startXPos << Logger::endl;
-    Log << "\tSize of stages Y : " << maxStageHeight << Logger::endl;
+    // set gap between stages
+    uint64_t stageXMoveAmount {0};
+    uint64_t lineAmount {0};
+    for(size_t stageListIndex {0}; stageListIndex < stages.size(); ++stageListIndex)
+    {
+        list<FunctionBlock>& fbList = stages[stageListIndex];
+        if(stageListIndex + 1 < stages.size())
+        {
+            uint64_t startIndex {0};
+            uint64_t endIndex {0};
+            list<FunctionBlock>& nextFbList = stages[stageListIndex + 1];
+            list<FunctionBlock>::iterator nextFbListIterator = nextFbList.begin();
+
+            for(FunctionBlock fb : fbList)
+            {
+                sf::Vector2u fbEdgePos = fb.getCenterOfEdgePos();
+                unsigned int fbFunctionsAmount = fb.getDetectedFunctionAmount();
+                startIndex = endIndex;
+                endIndex += fbFunctionsAmount;
+                uint64_t upperLineAmount {0};
+                uint64_t lowerLineAmount {0};
+
+                for(;startIndex < endIndex; startIndex++)
+                {
+                    FunctionBlock& nextFb = *nextFbListIterator;
+                    sf::Vector2u fbNextEdgePos = nextFb.getCenterOfEdgePos();
+                    if(fbEdgePos.y - fbNextEdgePos.y > 0)
+                        upperLineAmount++;
+                    else
+                        lowerLineAmount++; // plus horizontal line ?
+
+                    ++nextFbListIterator;
+                }
+
+                if(max(upperLineAmount, lowerLineAmount) > lineAmount)
+                    lineAmount = max(upperLineAmount, lowerLineAmount);
+            }
+
+            stageXMoveAmount += (lineAmount + 1) * LINE_GAP + (lineAmount * LINE_THICKNESS);
+
+            for(nextFbListIterator = nextFbList.begin();
+                nextFbListIterator != nextFbList.end();
+                ++nextFbListIterator)
+            {
+                FunctionBlock& nextFb = *nextFbListIterator;
+                nextFb.move(stageXMoveAmount, 0);
+            }
+        }
+    }
+
+    // add lines
+    Log << "\tAdd Lines" << Logger::endl;
+    for(size_t stageListIndex {0}; stageListIndex < stages.size() - 1; ++stageListIndex)
+    {
+        list<FunctionBlock>& currFbList = stages[stageListIndex];
+        if(stageListIndex + 1 < stages.size())
+        {
+            Log << "\t\tNext stage pair : " << Logger::endl;
+            list<FunctionBlock>& nextFbList = stages[stageListIndex + 1];
+            list<FunctionBlock>::iterator nextFbListIterator = nextFbList.begin();
+            list<ConnectionLine> clList;
+            for(FunctionBlock& fb : currFbList)
+            {
+                list<unsigned int> currDetectedFunctionList = fb.getDetectedFunctionList();
+                uint64_t lineNumberPos {fb.getPosition().x + stagesInfo[stageListIndex].x + LINE_GAP + (LINE_THICKNESS / 2.0)};
+                for(unsigned int funcPos : currDetectedFunctionList)
+                {
+                    FunctionBlock& nextFb = *nextFbListIterator;
+                    ++nextFbListIterator;
+
+                    Log << "\t\t\tFB POS x : " << fb.getPosition().x << " y : " << fb.getPosition().y << Logger::endl;
+                    Log << "\t\t\tFB SIZE x : " << fb.getSize().x << " y : " << fb.getSize().y << Logger::endl;
+                    Log << "\t\t\tFUNC POS x : " << funcPos << Logger::endl;
+
+                    sf::Vector2i pos1{fb.getLineEndPos(funcPos)};
+                    sf::Vector2i pos2{lineNumberPos, pos1.y};
+                    sf::Vector2i pos3{lineNumberPos, nextFb.getCenterOfEdgePos().y};
+                    sf::Vector2i pos4{nextFb.getCenterOfEdgePos()};
+
+                    Log << "\t\t\tx: " << pos1.x << " y: " << pos1.y << Logger::endl;
+                    Log << "\t\t\tx: " << pos2.x << " y: " << pos2.y << Logger::endl;
+                    Log << "\t\t\tx: " << pos3.x << " y: " << pos3.y << Logger::endl;
+                    Log << "\t\t\tx: " << pos4.x << " y: " << pos4.y << Logger::endl << Logger::endl;
+
+                    if(fb.getLineEndPos(funcPos).y - nextFb.getCenterOfEdgePos().y > 0)
+                        lineNumberPos += LINE_GAP + LINE_THICKNESS;
+                    else
+                        lineNumberPos -= LINE_GAP + LINE_THICKNESS;
+
+                    ConnectionLine connectionLine(pos1, pos2, pos3, pos4);
+                    clList.push_back(connectionLine);
+                }
+            }
+
+            stagesLines.push_back(clList);
+        }
+    }
 }
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)
@@ -360,6 +446,14 @@ void ProcessFlow::drawStages(sf::RenderWindow& window)
         for(FunctionBlock& fb : fbList)
         {
             window.draw(fb);
+        }
+    }
+
+    for(list<ConnectionLine> clList : stagesLines)
+    {
+        for(ConnectionLine& cl : clList)
+        {
+            window.draw(cl);
         }
     }
 }

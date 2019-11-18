@@ -43,3 +43,6 @@
 bin/
 
 *.txt
+
+#Test folder
+tests/

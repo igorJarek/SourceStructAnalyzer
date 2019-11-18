@@ -15,6 +15,10 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         ~FunctionBlock();
 
         sf::Vector2u getSize() { return size; }
+        sf::Vector2u getCenterOfEdgePos() { return {getPosition().x, getPosition().y + (getSize().y / 2)}; }
+        unsigned int getDetectedFunctionAmount() const { return funtionLineDetectedList.size(); }
+        std::list<unsigned int> getDetectedFunctionList() const { return funtionLineDetectedList; }
+        sf::Vector2u getLineEndPos(int functionLine);
 
     private:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

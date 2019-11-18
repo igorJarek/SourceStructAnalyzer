@@ -9,11 +9,13 @@
 #include <queue>
 #include <vector>
 #include <list>
+#include <algorithm>
 
 #include <FilesTreeElement.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
 #include <Logger.h>
+#include <ConnectionLine.h>
 
 using namespace std;
 
@@ -69,6 +71,7 @@ class ProcessFlow
         queue<string> functionCallsQueue;
         map<string, int> fuctionCallsMap;
         vector<list<FunctionBlock>>stages;
+        vector<list<ConnectionLine>>stagesLines;
 
         bool isFileIsHeader(const string& extension);
         bool isFileIsSource(const string& extension);

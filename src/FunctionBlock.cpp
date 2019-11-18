@@ -74,30 +74,6 @@ FunctionBlock::~FunctionBlock()
     //dtor
 }
 
-sf::Vector2u FunctionBlock::getLineEndPos(int functionLine)
-{
-    std::list<sf::Text>::iterator iterator = rows.begin();
-    for(int index{fileRange.second}; index >= fileRange.first; index--)
-    {
-        sf::Text& line = *iterator;
-        if(index == functionLine)
-        {
-            sf::Text& line = *iterator;
-            sf::FloatRect boundary = line.getGlobalBounds();
-
-            boundary.left += getPosition().x;
-            boundary.top += getPosition().y;
-
-            return {boundary.left + boundary.width + FB_BORDER_THICKNESS + FB_PADDING + LINE_TEXT_GAP,
-                    boundary.top + FB_BORDER_THICKNESS + FB_PADDING + (boundary.height / 2)};
-        }
-
-        ++iterator;
-    }
-
-    return {0, 0};
-}
-
 void FunctionBlock::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
     states.transform *= getTransform();

@@ -19,6 +19,8 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
     private:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+        bool isDetectedFuncListContainsLine(unsigned int line);
+
         sf::Vector2u size;
         sf::Text titlePath;
         sf::Text searchingFunction;

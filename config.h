@@ -2,6 +2,7 @@
 #define CONFIG_H_INCLUDED
 
 #include <string>
+#include <SFML/Graphics/Color.hpp>
 
 const std::string FONT_PATH = "courier-new.ttf";
 const float ZOOM_STEP {0.1f}; // 10 % zoom per "one click :)"
@@ -10,6 +11,8 @@ const float ZOOM_STEP {0.1f}; // 10 % zoom per "one click :)"
 const int FB_CHAR_SIZE {10};
 const int FB_PADDING {6};
 const int FB_BORDER_THICKNESS {4};
+
+const sf::Color FB_DETECTED_FUNCTION_COLOR{255, 50, 50};
 
 // Display Stages Config
 const int ST_X_GAP {30};

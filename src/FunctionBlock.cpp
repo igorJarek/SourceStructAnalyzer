@@ -2,10 +2,13 @@
 
 FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range, std::list<unsigned int>& detectedFuntions)
 {
+    fileRange = range;
+    funtionLineDetectedList = detectedFuntions;
+
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     int startYPos = 0;
     int maxWidth = 0;
-    int line = 0;
+    unsigned int currentLine = 0;
 
     searchingFunction.setFont(Resource::instance().getFuncBlockFont());
     searchingFunction.setString(functionName);
@@ -30,23 +33,27 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, s
 
     startYPos += fr.height + 16; /* additional space between rows*/
 
-    string currentLine;
+    string currentLineString;
     while(!rowedFile.isEOF())
     {
-        line++;
-        currentLine = rowedFile.getNextRow();
-        if(line < range.first)
+        currentLine++;
+        currentLineString = rowedFile.getNextRow();
+        if(currentLine < range.first)
             continue;
-        else if(line > range.second)
+        else if(currentLine > range.second)
             break;
 
-        string lineNumer = to_string(line) + ") ";
+        string lineNumer = to_string(currentLine) + ") ";
         sf::Text text;
         text.setFont(Resource::instance().getFuncBlockFont());
-        text.setString(lineNumer + currentLine);
+        text.setString(lineNumer + currentLineString);
         text.setCharacterSize(FB_CHAR_SIZE);
-        text.setFillColor(sf::Color::Black);
         text.setPosition(0, startYPos);
+
+        if(isDetectedFuncListContainsLine(currentLine))
+            text.setFillColor(sf::Color::Blue);
+        else
+            text.setFillColor(sf::Color::Black);
 
         fr = text.getGlobalBounds();
         if(fr.width > maxWidth) maxWidth = fr.width;
@@ -64,14 +71,22 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, s
 
     size.x = maxWidth + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
     size.y = startYPos + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
-
-    fileRange = range;
-    funtionLineDetectedList = detectedFuntions;
 }
 
 FunctionBlock::~FunctionBlock()
 {
     //dtor
+}
+
+bool FunctionBlock::isDetectedFuncListContainsLine(unsigned int line)
+{
+    for(unsigned int functionLine : funtionLineDetectedList)
+    {
+        if(functionLine == line)
+            return true;
+    }
+
+    return false;
 }
 
 void FunctionBlock::draw(sf::RenderTarget& target, sf::RenderStates states) const

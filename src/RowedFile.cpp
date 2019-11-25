@@ -50,7 +50,7 @@ void RowedFile::moveFileReaderPtr(size_t offset)
 {
     if(loaded)
     {
-        for(size_t i = 0; i < offset; i++)
+        for(size_t i = 1; i < offset; i++)
             iterator++;
     }
 }

@@ -51,7 +51,7 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, s
         text.setPosition(0, startYPos);
 
         if(isDetectedFuncListContainsLine(currentLine))
-            text.setFillColor(sf::Color::Blue);
+            text.setFillColor(sf::Color::Red);
         else
             text.setFillColor(sf::Color::Black);
 

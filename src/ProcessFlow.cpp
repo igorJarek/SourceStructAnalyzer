@@ -250,6 +250,7 @@ void ProcessFlow::iteratesCallsQueue()
                     {
                         Log << " found in the -> " << sourcePath << Logger::endl;
                         Log << "\t\tSearching for function calls .... " << Logger::endl;
+                        Log << "\t\t\tRange line : <" << functionPosition.first << "; " << functionPosition.second << ">" << Logger::endl;
 
                         regex basicFuncDetectionPattern {"(\\w+) *\\("};
 
@@ -273,7 +274,7 @@ void ProcessFlow::iteratesCallsQueue()
                                     map<string, int>::iterator iterator = fuctionCallsMap.find(functionName);
                                     if (iterator == fuctionCallsMap.end())
                                     {
-                                        Log << "\t\t\tFunction detected : " << functionName << Logger::endl;
+                                        Log << "\t\t\tFunction detected (line -> " << foundedFileIndex << ") : " << functionName << Logger::endl;
                                         fuctionCallsMap.emplace(functionName, foundedFileIndex);
                                         functionCallsQueue.push(functionName);
                                         functionDetectedLines.push_back(foundedFileIndex);

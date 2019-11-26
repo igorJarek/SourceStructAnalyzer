@@ -255,12 +255,12 @@ void ProcessFlow::iteratesCallsQueue()
                         regex basicFuncDetectionPattern {"(\\w+) *\\("};
 
                         rowedFile.resetFileReadedPtr();
-                        rowedFile.moveFileReaderPtr(functionPosition.first);
+                        rowedFile.moveFileReaderPtr(functionPosition.first + 1);
 
                         std::list<unsigned int> functionDetectedLines;
                         string currentLine {};
                         smatch result;
-                        for(int foundedFileIndex = functionPosition.first; foundedFileIndex < functionPosition.second; foundedFileIndex++)
+                        for(int foundedFileIndex = functionPosition.first + 1; foundedFileIndex < functionPosition.second; foundedFileIndex++)
                         {
                             currentLine = rowedFile.getNextRow();
                             string::const_iterator searchStart(currentLine.cbegin());
@@ -277,8 +277,9 @@ void ProcessFlow::iteratesCallsQueue()
                                         Log << "\t\t\tFunction detected (line -> " << foundedFileIndex << ") : " << functionName << Logger::endl;
                                         fuctionCallsMap.emplace(functionName, foundedFileIndex);
                                         functionCallsQueue.push(functionName);
-                                        functionDetectedLines.push_back(foundedFileIndex);
                                     }
+
+                                    functionDetectedLines.push_back(foundedFileIndex);
                                 }
 
                                 searchStart = result.suffix().first;

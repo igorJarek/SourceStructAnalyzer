@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 #include "version.h"
 
@@ -16,9 +17,11 @@ int main(int argc, char *argv[])
     window.setView(view);
 
     sf::Vector2u resizeOldWindowSize {window.getSize()};
-    sf::Vector2f moveMousePressPoint {};
+    sf::Vector2i moveMousePressPoint {};
     sf::Vector2f moveCenterViewPoint {};
     bool leftMouseState = false;
+    int64_t wheelCount {0};
+    double globalZoom {1.0};
 
     ProcessFlow process{argc, argv};
     process.recursiveFolderSearch(process.getExeFolderPath());
@@ -68,7 +71,8 @@ int main(int argc, char *argv[])
                 if(leftMouseState)
                 {
                     sf::View currentView{window.getView()};
-                    currentView.setCenter(moveCenterViewPoint.x - (event.mouseMove.x - moveMousePressPoint.x), moveCenterViewPoint.y - (event.mouseMove.y - moveMousePressPoint.y));
+                    currentView.setCenter(moveCenterViewPoint.x - (event.mouseMove.x - moveMousePressPoint.x) * globalZoom,
+                                          moveCenterViewPoint.y - (event.mouseMove.y - moveMousePressPoint.y) * globalZoom);
                     window.setView(currentView);
                 }
             }
@@ -78,9 +82,15 @@ int main(int argc, char *argv[])
                 if(event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
                 {
                     float zoom {1.f + ZOOM_STEP};
+                    wheelCount++;
 
                     if (event.mouseWheelScroll.delta > 0)
+                    {
                         zoom = 1.f / zoom;
+                        wheelCount -= 2;
+                    }
+
+                    globalZoom = pow(zoom, abs(wheelCount));
 
                     sf::Vector2i pixel{ event.mouseWheelScroll.x, event.mouseWheelScroll.y };
                     const sf::Vector2f beforeCoord{window.mapPixelToCoords(pixel)};

@@ -1,6 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include <SFML/System/Vector2.hpp>
 #include <string>
 #include <map>
 #include <windows.h>
@@ -43,6 +44,8 @@ class ProcessFlow
         string getExeFolderPath() const { return exeFolderPath; }
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
+
+        void goToDefinition(sf::Vector2f clickPoint);
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);

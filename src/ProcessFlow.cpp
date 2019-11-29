@@ -26,6 +26,34 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
+void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
+{
+    bool loopBreaker = true;
+    list<FunctionBlock>::iterator findedElement;
+
+    for(size_t stageIndex = 0; stageIndex < stages.size() && loopBreaker; ++stageIndex)
+    {
+        list<FunctionBlock>& fbList = stages[stageIndex];
+        for(list<FunctionBlock>::iterator iterator = fbList.begin(); iterator != fbList.end() && loopBreaker; ++iterator)
+        {
+            FunctionBlock& fb = *iterator;
+            if(fb.isContainsPoint(clickPoint))
+            {
+                loopBreaker = false;
+                findedElement = iterator;
+            }
+        }
+    }
+
+    if(!loopBreaker)
+    {
+        FunctionBlock& fb = *findedElement;
+        cout << "FB name : " << fb.getFunctionName() << endl;
+        string functionName = fb.getFuncNameFromPoint(clickPoint);
+        cout << "Click func : " << functionName << endl;
+    }
+}
+
 bool ProcessFlow::isFileIsHeader(const string& extension)
 {
     if(extension.compare("h") == 0 || extension.compare("hpp") == 0)

@@ -23,12 +23,12 @@ int main(int argc, char *argv[])
     int64_t wheelCount {0};
     double globalZoom {1.0};
 
-    ProcessFlow process{argc, argv};
-    process.recursiveFolderSearch(process.getExeFolderPath());
-    process.openMainFile();
-    process.iteratesCallsQueue();
-    process.prepareFunctionBlocks();
-    process.lootAtMainFunctionalBlock(window);
+    ProcessFlow processFlow{argc, argv};
+    processFlow.recursiveFolderSearch(processFlow.getExeFolderPath());
+    processFlow.openMainFile();
+    processFlow.iteratesCallsQueue();
+    processFlow.prepareFunctionBlocks();
+    processFlow.lootAtMainFunctionalBlock(window);
 
     while (window.isOpen())
     {
@@ -57,6 +57,13 @@ int main(int argc, char *argv[])
                     moveMousePressPoint.x = event.mouseButton.x;
                     moveMousePressPoint.y = event.mouseButton.y;
                     moveCenterViewPoint = window.getView().getCenter();
+                }
+                else if(event.mouseButton.button == sf::Mouse::Right)
+                {
+                    sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
+                    sf::Vector2f pixel {window.mapPixelToCoords(mouseButtonReleasedPoint)};
+                    cout << "click x : " << pixel.x << " y : " << pixel.y << endl;
+                    processFlow.goToDefinition(pixel);
                 }
             }
 
@@ -123,7 +130,7 @@ int main(int argc, char *argv[])
         }
 
         window.clear(sf::Color::White);
-        process.drawStages(window);
+        processFlow.drawStages(window);
         window.display();
     }
 

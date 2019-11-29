@@ -14,7 +14,11 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range, std::list<unsigned int>& detectedFuntions);
         ~FunctionBlock();
 
-        sf::Vector2u getSize() { return size; }
+        sf::Vector2u getSize() const { return size; }
+        bool isContainsPoint(sf::Vector2f point);
+        string getFunctionName() const { return searchingFunction.getString(); }
+
+        string getFuncNameFromPoint(sf::Vector2f point);
 
     private:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

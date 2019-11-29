@@ -8,7 +8,7 @@ FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, s
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     int startYPos = 0;
     int maxWidth = 0;
-    unsigned int currentLine = 0;
+    int currentLine = 0;
 
     searchingFunction.setFont(Resource::instance().getFuncBlockFont());
     searchingFunction.setString(functionName);
@@ -78,6 +78,19 @@ FunctionBlock::~FunctionBlock()
     //dtor
 }
 
+bool FunctionBlock::isContainsPoint(sf::Vector2f point)
+{
+    sf::Vector2f topLeftCornerPos       {getPosition()};
+    sf::Vector2f bottomRightCornerPos   {static_cast<float>(getSize().x) + getPosition().x,
+                                         static_cast<float>(getSize().y) + getPosition().y};
+
+    if(point.x > topLeftCornerPos.x && point.x < bottomRightCornerPos.x
+    && point.y > topLeftCornerPos.y && point.y < bottomRightCornerPos.y)
+        return true;
+    else
+        return false;
+}
+
 bool FunctionBlock::isDetectedFuncListContainsLine(unsigned int line)
 {
     for(unsigned int functionLine : funtionLineDetectedList)
@@ -87,6 +100,28 @@ bool FunctionBlock::isDetectedFuncListContainsLine(unsigned int line)
     }
 
     return false;
+}
+
+string FunctionBlock::getFuncNameFromPoint(sf::Vector2f point)
+{
+    for(sf::Text& text: rows)
+    {
+        sf::Vector2f fbPos = getPosition();
+        sf::Vector2f textPos = text.getPosition();
+        sf::FloatRect bounds = text.getLocalBounds();
+        bounds.left += fbPos.x + FB_PADDING + FB_BORDER_THICKNESS;
+        bounds.top += fbPos.y + textPos.y + FB_PADDING + FB_BORDER_THICKNESS;
+        bounds.width += fbPos.x + FB_PADDING + FB_BORDER_THICKNESS;
+        bounds.height += fbPos.y + textPos.y + FB_PADDING + FB_BORDER_THICKNESS;
+
+        if(point.x > bounds.left && point.x < bounds.width
+        && point.y > bounds.top  && point.y < bounds.height)
+        {
+            return text.getString();
+        }
+    }
+
+    return "";
 }
 
 void FunctionBlock::draw(sf::RenderTarget& target, sf::RenderStates states) const

@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
 
     ProcessFlow processFlow{argc, argv};
     processFlow.recursiveFolderSearch(processFlow.getExeFolderPath());
-    processFlow.openMainFile();
-    processFlow.iteratesCallsQueue();
-    processFlow.prepareFunctionBlocks();
-    processFlow.lootAtMainFunctionalBlock(window);
+    //processFlow.openMainFile();
+    //processFlow.iteratesCallsQueue();
+    //processFlow.prepareFunctionBlocks();
+    //processFlow.lootAtMainFunctionalBlock(window);
 
     while (window.isOpen())
     {
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
         }
 
         window.clear(sf::Color::White);
-        processFlow.drawStages(window);
+        //processFlow.drawStages(window);
         window.display();
     }
 

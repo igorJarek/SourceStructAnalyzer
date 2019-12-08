@@ -54,125 +54,56 @@ void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
     }
 }
 
-bool ProcessFlow::isFileIsHeader(const string& extension)
-{
-    if(extension.compare("h") == 0 || extension.compare("hpp") == 0)
-        return true;
-    else
-        return false;
-}
-
-bool ProcessFlow::isFileIsSource(const string& extension)
-{
-    if(extension.compare("c") == 0 || extension.compare("cpp") == 0)
-        return true;
-    else
-        return false;
-}
-
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     Log << "Stage 1 : recursiveFolderSearch -> " << folderPath << Logger::endl;
     WIN32_FIND_DATA findDataStruct;
     string startDir {folderPath + "*.*"};
     HANDLE hFind = FindFirstFile(startDir.c_str(), &findDataStruct);
-    if(hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
-               (strcmp(findDataStruct.cFileName, ".") == 0 || strcmp(findDataStruct.cFileName, "..") == 0))
-                continue;
-
-            if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                string nextDir {folderPath + findDataStruct.cFileName + "\\"};
-                bool ret = recursiveFolderSearch(nextDir);
-                if(!ret)
-                {
-                    Log << "\tError : " << "Unable to open directory (Error code : " << GetLastError() << ") : " << nextDir << Logger::endl;
-                    return false;
-                }
-            }
-            else
-            {
-                string absoluteFilePath {folderPath + findDataStruct.cFileName};
-                string fileWithExtension {findDataStruct.cFileName};
-                string fileWithoutExtension {fileWithExtension.substr(0, fileWithExtension.find_last_of("."))};
-                string fileExtension {fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1)};
-
-                try
-                {
-                    FilesTreeElement& element = filesTree.at(fileWithoutExtension);
-
-                    if(isFileIsSource(fileExtension))
-                    {
-                        if(element.isSourcePathSet())
-                        {
-                           Log << "\tDuplicated source file : " << Logger::endl;
-                           Log << "\t\tSet : " << element.getSourcePath() << Logger::endl;
-                           Log << "\t\tWould be : " << absoluteFilePath << Logger::endl;
-                        }
-                        else
-                            element.setSourcePath(absoluteFilePath);
-                    }
-                    else if(isFileIsHeader(fileExtension))
-                    {
-                        if(element.isHeaderPathSet())
-                        {
-                           Log << "\tDuplicated header file : " << Logger::endl;
-                           Log << "\t\tSet : " << element.getHeaderPath() << Logger::endl;
-                           Log << "\t\tWould be : " << absoluteFilePath << Logger::endl;
-                        }
-                        else
-                            element.setSourcePath(absoluteFilePath);
-                    }
-                }
-                catch(const std::out_of_range& oor)
-                {
-                    FilesTreeElement element;
-
-                    if(isFileIsHeader(fileExtension))
-                        element.setHeaderPath(absoluteFilePath);
-                    else if(isFileIsSource(fileExtension))
-                        element.setSourcePath(absoluteFilePath);
-
-                    filesTree.insert(pair<string, FilesTreeElement>(fileWithoutExtension, element));
-                }
-            }
-        }while(FindNextFile(hFind, &findDataStruct) != 0);
-    }
-    else
+    if(hFind == INVALID_HANDLE_VALUE)
     {
         Log << "\tError : " << "Unable to open directory (Error code : " << GetLastError() << ") : " << folderPath << Logger::endl;
         return false;
     }
 
+    do
+    {
+        if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+           (strcmp(findDataStruct.cFileName, ".") == 0 || strcmp(findDataStruct.cFileName, "..") == 0))
+            continue;
+
+        if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            string nextDir {folderPath + findDataStruct.cFileName + "\\"};
+            bool ret = recursiveFolderSearch(nextDir);
+            if(!ret)
+            {
+                Log << "\tError : " << "Unable to open directory (Error code : " << GetLastError() << ") : " << nextDir << Logger::endl;
+                return false;
+            }
+        }
+        else
+        {
+            string absoluteFilePath {folderPath + findDataStruct.cFileName};
+            ParsedFilePtr parsedFilePtr = make_shared<ParsedFile>(absoluteFilePath);
+            bool ret = parsedFilePtr->parse();
+
+            try
+            {
+                //ParsedFileList parsedFileListPtr = parsedFileTree.at(fileWithoutExtension);
+            }
+            catch(const std::out_of_range& oor)
+            {
+
+            }
+        }
+    }while(FindNextFile(hFind, &findDataStruct) != 0);
+
     FindClose(hFind);
     return true;
 }
 
-bool ProcessFlow::isFunctionName(const string& functionName)
-{
-    if(functionName.compare("if") == 0)
-        return false;
-    else if(functionName.compare("while") == 0)
-        return false;
-    else if(functionName.compare("switch") == 0)
-        return false;
-    else if(functionName.compare("sizeof") == 0)
-        return false;
-
-    return true;
-}
-
-bool ProcessFlow::isFunctionParams(const string& functionParams)
-{
-    // TODO
-    return true;
-}
-
-void ProcessFlow::openMainFile()
+/*void ProcessFlow::openMainFile()
 {
     Log << "Stage 2 : openMainFile" << Logger::endl;
     RowedFile mainFile(relativeMainFilePath);
@@ -400,4 +331,4 @@ void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
             window.setView(currentView);
         }
     }
-}
+}*/

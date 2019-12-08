@@ -10,8 +10,10 @@
 #include <queue>
 #include <vector>
 #include <list>
+#include <regex>
 
-#include <FilesTreeElement.h>
+#include <ParsedFile.h>
+#include <FunctionInfo.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
 #include <Logger.h>
@@ -61,23 +63,21 @@ class ProcessFlow
         void lootAtMainFunctionalBlock(sf::RenderWindow& window);
 
     private:
+        using ParsedFilePtr = shared_ptr<ParsedFile>;
+        using ParsedFileListPtr = shared_ptr<list<ParsedFilePtr>>;
+        using ParsedFilesMap = map<string, ParsedFileListPtr>;
+
         string exePath;
         string exeFolderPath;
         string relativeMainFilePath;
         string absoluteMainFilePath;
         int mainFunctionPosition;
 
-        map<string, FilesTreeElement> filesTree;
-        list<string> includeList;
+        ParsedFilesMap parsedFileTree;
+
         queue<string> functionCallsQueue;
         map<string, int> fuctionCallsMap;
         vector<list<FunctionBlock>>stages;
-
-        bool isFileIsHeader(const string& extension);
-        bool isFileIsSource(const string& extension);
-
-        bool isFunctionName(const string& functionName);
-        bool isFunctionParams(const string& functionParams);
 };
 
 #endif // PROCESS_H

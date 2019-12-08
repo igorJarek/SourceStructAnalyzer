@@ -5,8 +5,6 @@
 #include <list>
 #include <string>
 #include <exception>
-#include <utility>
-#include <regex>
 
 using namespace std;
 
@@ -34,31 +32,48 @@ class rowerFileHasNotCreated : public rowerFileException
         virtual const char* what() noexcept { return "Rowed File : rowed file hasn't created"; };
 };
 
+struct CharInfo
+{
+    CharInfo() = default;
+    CharInfo(char character, uint32_t line, uint32_t position) : c(character), line(line), pos(position) {}
+
+    char c          {0};
+    uint32_t line   {0};
+    uint32_t pos    {0};
+};
+
 class RowedFile
 {
     public:
         RowedFile() = default;
         RowedFile(const string& fullFilePath);
-        ~RowedFile();
-
-        void create(const string& fullFilePath);
+        ~RowedFile() = default;
 
         bool isEmpty() const { return rows.empty(); }
         bool isEOF() const { return iterator == rows.end(); }
-        void resetFileReadedPtr() { iterator = rows.begin(); }
 
         string getNextRow();
         string getPath() const { return path; }
         size_t getSize() const { return rows.size(); }
 
-        pair<int, int> getFunctionPosition(const string& functionName);
-        void moveFileReaderPtr(size_t offset);
+        void resetIteratorPtr() { iterator = rows.begin(); }
+        void resetStringIndexPtr()
+        {
+            resetIteratorPtr();
+            stringIndex = 0;
+            currentLine = 1;
+        }
+
+        CharInfo get();
+        CharInfo peek();
 
     private:
         string path {};
+
         list<string>rows;
         list<string>::iterator iterator {};
-        bool loaded = false;
+        size_t stringIndex {0};
+        size_t currentLine {1};
 };
 
 #endif // ROWEDFILE_H

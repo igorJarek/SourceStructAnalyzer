@@ -1,7 +1,6 @@
 #ifndef PARSEDFILE_H
 #define PARSEDFILE_H
 
-#include <FunctionInfo.h>
 #include <RowedFile.h>
 #include <Lexer.h>
 #include <Token.h>

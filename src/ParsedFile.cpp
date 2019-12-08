@@ -12,6 +12,6 @@ ParsedFile::~ParsedFile()
 
 bool ParsedFile::parse()
 {
-
+    Lexer lexer(rowedFilePtr);
     return true;
 }

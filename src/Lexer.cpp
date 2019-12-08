@@ -98,10 +98,10 @@ bool is_identifier_char(char c)
         return false;
 }
 
-Lexer::Lexer(RowedFile& _rowedFile)
+Lexer::Lexer(shared_ptr<RowedFile> _rowedFile)
 {
-    rowedFile = _rowedFile;
-    rowedFile.resetStringIndexPtr();
+    rowedFilePtr = _rowedFile;
+    rowedFilePtr->resetStringIndexPtr();
 }
 
 std::shared_ptr<list<Token>> Lexer::parse()
@@ -116,13 +116,13 @@ std::shared_ptr<list<Token>> Lexer::parse()
 
 Token Lexer::next() noexcept
 {
-    while(is_space(rowedFile.peek().c))
+    while(is_space(rowedFilePtr->peek().c))
     {
-        char c = rowedFile.get().c;
+        char c = rowedFilePtr->get().c;
         (void)c;
     }
 
-    CharInfo cInfo = rowedFile.get();
+    CharInfo cInfo = rowedFilePtr->get();
     switch (cInfo.c)
     {
         case '\0':
@@ -260,9 +260,9 @@ Token Lexer::name(CharInfo cInfo) noexcept
     uint32_t endPos     {0};
     CharInfo newCInfo;
 
-    while(is_identifier_char(rowedFile.peek().c))
+    while(is_identifier_char(rowedFilePtr->peek().c))
     {
-        newCInfo = rowedFile.get();
+        newCInfo = rowedFilePtr->get();
         name += newCInfo.c;
         endPos = newCInfo.pos;
     }
@@ -292,9 +292,9 @@ Token Lexer::number(CharInfo cInfo) noexcept
     uint32_t endPos     {0};
     CharInfo newCInfo;
 
-    while(is_digit(rowedFile.peek().c))
+    while(is_digit(rowedFilePtr->peek().c))
     {
-        newCInfo = rowedFile.get();
+        newCInfo = rowedFilePtr->get();
         number += newCInfo.c;
         endPos = newCInfo.pos;
     }
@@ -304,23 +304,23 @@ Token Lexer::number(CharInfo cInfo) noexcept
 
 Token Lexer::slashOrComment(CharInfo cInfo) noexcept
 {
-    char peek {rowedFile.peek().c};
+    char peek {rowedFilePtr->peek().c};
     if(peek == '/')
     {
-        char c = rowedFile.get().c;
+        char c = rowedFilePtr->get().c;
         (void)c;
-        while(rowedFile.get().c != '\n');
+        while(rowedFilePtr->get().c != '\n');
         return next();
     }
     else if(peek == '*')
     {
-        char c = rowedFile.get().c;
+        char c = rowedFilePtr->get().c;
         (void)c;
         bool loopBreaker {false};
         while(!loopBreaker)
         {
-            while(rowedFile.get().c != '*');
-            c = rowedFile.get().c;
+            while(rowedFilePtr->get().c != '*');
+            c = rowedFilePtr->get().c;
             if(c == '/')
                loopBreaker = true;
         }

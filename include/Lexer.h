@@ -13,7 +13,7 @@ bool is_identifier_char(char c);
 class Lexer
 {
     public:
-        Lexer(RowedFile& _rowedFile);
+        Lexer(shared_ptr<RowedFile> _rowedFile);
         Token next() noexcept;
         std::shared_ptr<list<Token>> parse();
 
@@ -21,7 +21,7 @@ class Lexer
         const static set<string> preprocessorKeywordsSet;
 
     private:
-        RowedFile rowedFile;
+        shared_ptr<RowedFile> rowedFilePtr;
 
         bool hashSymbol {false};
 

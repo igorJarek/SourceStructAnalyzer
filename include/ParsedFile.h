@@ -19,17 +19,20 @@ class ParsedFile
         ~ParsedFile();
 
         bool parse();
+        shared_ptr<list<string>> getFunctionsDefinitionName() { return functionsDefinitionName; }
 
         static bool isFileHeader(const string& extension);
         static bool isFileSource(const string& extension);
 
     private:
-        FunctionInfo findFunction(shared_ptr<list<FunctionInfo>> functionList, TokenList& tokenList, Token currentToken);
+        FunctionInfo browseFunctionDefinition(shared_ptr<list<FunctionInfo>> functionList, TokenList& tokenList, Token currentToken);
 
+        string filePath {};
         string fileExtension {};
 
         shared_ptr<RowedFile> rowedFilePtr;
-        map<string, FunctionInfo> functions;
+        map<string, FunctionInfo> functionsDefinition;
+        shared_ptr<list<string>> functionsDefinitionName;
 };
 
 #endif // PARSEDFILE_H

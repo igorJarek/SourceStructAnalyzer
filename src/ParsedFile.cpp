@@ -2,8 +2,10 @@
 
 ParsedFile::ParsedFile(const string& fullFilePath)
 {
+    filePath = fullFilePath;
     fileExtension = fullFilePath.substr(fullFilePath.find_last_of(".") + 1); // without dot
     rowedFilePtr = make_shared<RowedFile>(fullFilePath);
+    functionsDefinitionName = make_shared<list<string>>();
 }
 
 ParsedFile::~ParsedFile()
@@ -83,7 +85,7 @@ bool ParsedFile::parse()
                                     Token token = tokenList.peek();
                                     if(token.is(Token::Kind::LeftParen))
                                     {
-                                        FunctionInfo fInfo = findFunction(functions, tokenList, closeCurlyOrIdentifierToken);
+                                        FunctionInfo fInfo = browseFunctionDefinition(functions, tokenList, closeCurlyOrIdentifierToken);
                                         functions->push_back(fInfo);
                                     }
                                 }
@@ -91,6 +93,14 @@ bool ParsedFile::parse()
                         }while(openBracketCount != closeBracketCount);
 
                         Log << "\t\tFunction definition (" << currentToken.line() << "; " << closeCurlyOrIdentifierToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
+
+                        functionsDefinitionName->push_back(currentToken.lexeme());
+                        FunctionInfo functionDefinitions(currentToken.lexeme(),
+                                                         FunctionInfo::Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
+                                                         FunctionInfo::Pos(0, 0));
+                        functionDefinitions.setFunctionList(functions);
+                        functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
+
                         for(FunctionInfo fInfo : *functions)
                             Log << "\t\t\tFunction line(" << fInfo.getLine().first << "; " << fInfo.getLine().second << ")"
                             << " pos(" << fInfo.getPos().first << "; " << fInfo.getPos().second << ") : "
@@ -108,7 +118,7 @@ bool ParsedFile::parse()
     return true;
 }
 
-FunctionInfo ParsedFile::findFunction(shared_ptr<list<FunctionInfo>> functionList, TokenList& tokenList, Token currentToken)
+FunctionInfo ParsedFile::browseFunctionDefinition(shared_ptr<list<FunctionInfo>> functionList, TokenList& tokenList, Token currentToken)
 {
     tokenList.get();
     uint32_t openBracketCount   {1};
@@ -127,7 +137,7 @@ FunctionInfo ParsedFile::findFunction(shared_ptr<list<FunctionInfo>> functionLis
             Token nextToken = tokenList.peek();
             if(nextToken.is(Token::Kind::LeftParen))
             {
-                FunctionInfo fInfo = findFunction(functionList, tokenList, token);
+                FunctionInfo fInfo = browseFunctionDefinition(functionList, tokenList, token);
                 functionList->push_back(fInfo);
             }
         }

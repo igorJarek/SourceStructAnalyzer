@@ -26,34 +26,6 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
-void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
-{
-    bool loopBreaker = true;
-    list<FunctionBlock>::iterator findedElement;
-
-    for(size_t stageIndex = 0; stageIndex < stages.size() && loopBreaker; ++stageIndex)
-    {
-        list<FunctionBlock>& fbList = stages[stageIndex];
-        for(list<FunctionBlock>::iterator iterator = fbList.begin(); iterator != fbList.end() && loopBreaker; ++iterator)
-        {
-            FunctionBlock& fb = *iterator;
-            if(fb.isContainsPoint(clickPoint))
-            {
-                loopBreaker = false;
-                findedElement = iterator;
-            }
-        }
-    }
-
-    if(!loopBreaker)
-    {
-        FunctionBlock& fb = *findedElement;
-        cout << "FB name : " << fb.getFunctionName() << endl;
-        string functionName = fb.getFuncNameFromPoint(clickPoint);
-        cout << "Click func : " << functionName << endl;
-    }
-}
-
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     Log << "Stage 1 : recursiveFolderSearch -> " << folderPath << Logger::endl;
@@ -87,6 +59,7 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
             string absoluteFilePath {folderPath + findDataStruct.cFileName};
             string fileWithExtension {findDataStruct.cFileName};
             string fileExtension {fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1)};
+            ++filesCount;
 
             if(ParsedFile::isFileHeader(fileExtension) || ParsedFile::isFileSource(fileExtension))
             {
@@ -96,17 +69,28 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
                 if(!ret)
                     Log << "\t\tUNEXPECTED TOKEN IN : " << absoluteFilePath << Logger::endl;
 
-                try
-                {
-                    //ParsedFileList parsedFileListPtr = parsedFileTree.at(fileWithoutExtension);
-                }
-                catch(const std::out_of_range& oor)
-                {
+                ++parsedFileCount;
+                shared_ptr<list<string>> functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
 
+                for(string functionName : *functionsNameList)
+                {
+                    try
+                    {
+                        ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(functionName);
+                        parsedFileListPtr->push_back(parsedFilePtr);
+                    }
+                    catch(const std::out_of_range& oor)
+                    {
+                        ParsedFileListPtr parsedFileListPtr = make_shared<list<ParsedFilePtr>>();
+                        parsedFileListPtr->push_back(parsedFilePtr);
+                        parsedFileTree.insert(pair<string, ParsedFileListPtr>(functionName, parsedFileListPtr));
+                    }
                 }
             }
         }
     }while(FindNextFile(hFind, &findDataStruct) != 0);
+
+    Log << "Parsed file : " << parsedFileCount << " \\ " << filesCount << Logger::endl;
 
     FindClose(hFind);
     return true;

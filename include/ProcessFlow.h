@@ -39,6 +39,11 @@ class ProcessFlowWrongParamCount : public ProcessFlowException
 class ProcessFlow
 {
     public:
+        using ParsedFilePtr = shared_ptr<ParsedFile>;
+        using ParsedFileListPtr = shared_ptr<list<ParsedFilePtr>>;
+        using ParsedFilesMap = map<string, ParsedFileListPtr>;
+
+    public:
         ProcessFlow(int argc, char *argv[]);
         ~ProcessFlow();
 
@@ -46,8 +51,6 @@ class ProcessFlow
         string getExeFolderPath() const { return exeFolderPath; }
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
-
-        void goToDefinition(sf::Vector2f clickPoint);
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
@@ -63,15 +66,14 @@ class ProcessFlow
         void lootAtMainFunctionalBlock(sf::RenderWindow& window);
 
     private:
-        using ParsedFilePtr = shared_ptr<ParsedFile>;
-        using ParsedFileListPtr = shared_ptr<list<ParsedFilePtr>>;
-        using ParsedFilesMap = map<string, ParsedFileListPtr>;
-
         string exePath;
         string exeFolderPath;
         string relativeMainFilePath;
         string absoluteMainFilePath;
         int mainFunctionPosition;
+
+        uint32_t parsedFileCount {0};
+        uint32_t filesCount {0};
 
         ParsedFilesMap parsedFileTree;
 

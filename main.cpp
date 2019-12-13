@@ -60,10 +60,7 @@ int main(int argc, char *argv[])
                 }
                 else if(event.mouseButton.button == sf::Mouse::Right)
                 {
-                    sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
-                    sf::Vector2f pixel {window.mapPixelToCoords(mouseButtonReleasedPoint)};
-                    cout << "click x : " << pixel.x << " y : " << pixel.y << endl;
-                    processFlow.goToDefinition(pixel);
+
                 }
             }
 

@@ -1,8 +1,15 @@
-#ifndef LEXER_H
-#define LEXER_H
+/*
+    Based on Juan Arrieta's Simple C++ Lexer
+    https://gist.github.com/arrieta/1a309138689e09375b90b3b1aa768e20
+*/
+
+#ifndef LEXER2_H
+#define LEXER2_H
 
 #include <RowedFile.h>
 #include <Token.h>
+#include <TokenList.h>
+
 #include <set>
 #include <memory>
 
@@ -13,15 +20,15 @@ bool is_identifier_char(char c);
 class Lexer
 {
     public:
-        Lexer(shared_ptr<RowedFile> _rowedFile);
+        Lexer(RowedFile& _rowedFile);
         Token next() noexcept;
-        std::shared_ptr<list<Token>> parse();
+        TokenList parse();
 
         const static set<string> keywordsSet;
         const static set<string> preprocessorKeywordsSet;
 
     private:
-        shared_ptr<RowedFile> rowedFilePtr;
+        RowedFile rowedFile;
 
         bool hashSymbol {false};
 
@@ -30,4 +37,5 @@ class Lexer
         Token slashOrComment(CharInfo cInfo) noexcept;
 };
 
-#endif // LEXER_H
+#endif // LEXER2_H
+

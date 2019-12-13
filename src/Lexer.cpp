@@ -98,31 +98,37 @@ bool is_identifier_char(char c)
         return false;
 }
 
-Lexer::Lexer(shared_ptr<RowedFile> _rowedFile)
+Lexer::Lexer(RowedFile& _rowedFile)
 {
-    rowedFilePtr = _rowedFile;
-    rowedFilePtr->resetStringIndexPtr();
+    rowedFile = _rowedFile;
+    rowedFile.resetStringIndexPtr();
 }
 
-std::shared_ptr<list<Token>> Lexer::parse()
+TokenList Lexer::parse()
 {
-    std::shared_ptr<list<Token>> tokenList = make_shared<list<Token>>();
+    std::shared_ptr<list<Token>> tList = make_shared<list<Token>>();
 
-    for(Token token = next(); !token.is(Token::Kind::End); token = next())
-        tokenList->push_back(token);
+    Token token;
+    do
+    {
+        token = next();
+        tList->push_back(token);
+    }while(!token.is(Token::Kind::End));
+
+    TokenList tokenList(tList);
 
     return tokenList;
 }
 
 Token Lexer::next() noexcept
 {
-    while(is_space(rowedFilePtr->peek().c))
+    while(is_space(rowedFile.peek().c))
     {
-        char c = rowedFilePtr->get().c;
+        char c = rowedFile.get().c;
         (void)c;
     }
 
-    CharInfo cInfo = rowedFilePtr->get();
+    CharInfo cInfo = rowedFile.get();
     switch (cInfo.c)
     {
         case '\0':
@@ -249,6 +255,8 @@ Token Lexer::next() noexcept
             return Token(Token::Kind::Question, cInfo);
         case '^':
             return Token(Token::Kind::Power, cInfo);
+        case '\\':
+            return Token(Token::Kind::Backslash, cInfo);
     }
 }
 
@@ -260,9 +268,9 @@ Token Lexer::name(CharInfo cInfo) noexcept
     uint32_t endPos     {0};
     CharInfo newCInfo;
 
-    while(is_identifier_char(rowedFilePtr->peek().c))
+    while(is_identifier_char(rowedFile.peek().c))
     {
-        newCInfo = rowedFilePtr->get();
+        newCInfo = rowedFile.get();
         name += newCInfo.c;
         endPos = newCInfo.pos;
     }
@@ -292,9 +300,9 @@ Token Lexer::number(CharInfo cInfo) noexcept
     uint32_t endPos     {0};
     CharInfo newCInfo;
 
-    while(is_digit(rowedFilePtr->peek().c))
+    while(is_digit(rowedFile.peek().c))
     {
-        newCInfo = rowedFilePtr->get();
+        newCInfo = rowedFile.get();
         number += newCInfo.c;
         endPos = newCInfo.pos;
     }
@@ -304,23 +312,23 @@ Token Lexer::number(CharInfo cInfo) noexcept
 
 Token Lexer::slashOrComment(CharInfo cInfo) noexcept
 {
-    char peek {rowedFilePtr->peek().c};
+    char peek {rowedFile.peek().c};
     if(peek == '/')
     {
-        char c = rowedFilePtr->get().c;
+        char c = rowedFile.get().c;
         (void)c;
-        while(rowedFilePtr->get().c != '\n');
+        while(rowedFile.get().c != '\n');
         return next();
     }
     else if(peek == '*')
     {
-        char c = rowedFilePtr->get().c;
+        char c = rowedFile.get().c;
         (void)c;
         bool loopBreaker {false};
         while(!loopBreaker)
         {
-            while(rowedFilePtr->get().c != '*');
-            c = rowedFilePtr->get().c;
+            while(rowedFile.get().c != '*');
+            c = rowedFile.get().c;
             if(c == '/')
                loopBreaker = true;
         }

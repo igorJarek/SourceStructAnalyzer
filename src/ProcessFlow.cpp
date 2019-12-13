@@ -85,16 +85,25 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
         else
         {
             string absoluteFilePath {folderPath + findDataStruct.cFileName};
-            ParsedFilePtr parsedFilePtr = make_shared<ParsedFile>(absoluteFilePath);
-            bool ret = parsedFilePtr->parse();
+            string fileWithExtension {findDataStruct.cFileName};
+            string fileExtension {fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1)};
 
-            try
+            if(ParsedFile::isFileHeader(fileExtension) || ParsedFile::isFileSource(fileExtension))
             {
-                //ParsedFileList parsedFileListPtr = parsedFileTree.at(fileWithoutExtension);
-            }
-            catch(const std::out_of_range& oor)
-            {
+                Log << "\tParse file : " << absoluteFilePath << Logger::endl;
+                ParsedFilePtr parsedFilePtr = make_shared<ParsedFile>(absoluteFilePath);
+                bool ret = parsedFilePtr->parse();
+                if(!ret)
+                    Log << "\t\tUNEXPECTED TOKEN IN : " << absoluteFilePath << Logger::endl;
 
+                try
+                {
+                    //ParsedFileList parsedFileListPtr = parsedFileTree.at(fileWithoutExtension);
+                }
+                catch(const std::out_of_range& oor)
+                {
+
+                }
             }
         }
     }while(FindNextFile(hFind, &findDataStruct) != 0);

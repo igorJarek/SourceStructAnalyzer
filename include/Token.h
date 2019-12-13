@@ -1,3 +1,8 @@
+/*
+    Based on Juan Arrieta's Simple C++ Lexer
+    https://gist.github.com/arrieta/1a309138689e09375b90b3b1aa768e20
+*/
+
 #ifndef TOKEN_H
 #define TOKEN_H
 
@@ -40,12 +45,14 @@ class Token
             Tylda,
             Question,
             Power,
+            Backslash,
             Unexpected,
             End
         };
 
         using Pos = pair<uint32_t, uint32_t>;
 
+        Token() = default;
         Token(Kind k, CharInfo cInfo) noexcept : m_kind{k}
         {
             m_lexeme += cInfo.c;
@@ -53,7 +60,7 @@ class Token
             m_pos = Pos(cInfo.pos, cInfo.pos);
         }
 
-        Token(Kind k, string& lex, uint32_t line, pair<uint32_t, uint32_t> pos) noexcept : m_kind{k}, m_line(line), m_pos(pos) { m_lexeme = move(lex); }
+        Token(Kind k, string& lex, uint32_t line, Pos pos) noexcept : m_kind{k}, m_line(line), m_pos(pos) { m_lexeme = move(lex); }
 
         Kind kind() const noexcept { return m_kind; }
         void kind(Kind k) noexcept { m_kind = k; }

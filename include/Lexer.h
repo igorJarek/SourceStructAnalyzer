@@ -9,26 +9,29 @@
 #include <RowedFile.h>
 #include <Token.h>
 #include <TokenList.h>
+#include <Typedefs.h>
 
 #include <set>
-#include <memory>
 
 bool is_space(char c);
 bool is_digit(char c);
 bool is_identifier_char(char c);
 
+// TODO
+// 1. Fixed function like this : "%s(%u)" -> s function
+
 class Lexer
 {
     public:
-        Lexer(RowedFile& _rowedFile);
-        Token next() noexcept;
-        TokenList parse();
+        Lexer(RowedFilePtr _rowedFile);
+        Token next(void) noexcept;
+        TokenList parse(void);
 
         const static set<string> keywordsSet;
         const static set<string> preprocessorKeywordsSet;
 
     private:
-        RowedFile rowedFile;
+        RowedFilePtr rowedFile;
 
         bool hashSymbol {false};
 

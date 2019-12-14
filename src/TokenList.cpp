@@ -20,7 +20,7 @@ Token TokenList::get()
 
 Token TokenList::peek(uint64_t offset)
 {
-    ListIterator begin = iterator;
+    TokenListIter begin = iterator;
     for(uint64_t index = 0; index < offset; ++index)
     {
         ++begin;

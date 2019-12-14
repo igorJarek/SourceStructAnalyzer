@@ -7,11 +7,12 @@
 
 #include <RowedFile.h>
 #include <Resource.h>
+#include <Typedefs.h>
 
 class FunctionBlock : public sf::Drawable, public sf::Transformable
 {
     public:
-        FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range, std::list<unsigned int>& detectedFuntions);
+        FunctionBlock(RowedFile& rowedFile, const string& functionName, Pos range, std::list<unsigned int>& detectedFuntions);
         ~FunctionBlock();
 
         sf::Vector2u getSize() const { return size; }
@@ -32,7 +33,7 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         std::list<sf::Text> rows;
         sf::RectangleShape border;
 
-        std::pair<int, int> fileRange;
+        Pos fileRange;
         std::list<unsigned int> funtionLineDetectedList;
 };
 

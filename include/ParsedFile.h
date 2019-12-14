@@ -7,6 +7,7 @@
 #include <FunctionInfo.h>
 #include <TokenList.h>
 #include <Logger.h>
+#include <Typedefs.h>
 
 #include <map>
 #include <list>
@@ -15,24 +16,28 @@
 class ParsedFile
 {
     public:
+        static bool isFileHeader(const string& extension);
+        static bool isFileSource(const string& extension);
+
+    public:
         ParsedFile(const string& fullFilePath);
         ~ParsedFile();
 
         bool parse();
-        shared_ptr<list<string>> getFunctionsDefinitionName() { return functionsDefinitionName; }
 
-        static bool isFileHeader(const string& extension);
-        static bool isFileSource(const string& extension);
+        StringListPtr getFunctionsDefinitionName() { return functionsDefinitionName; }
+        string getAbsoluteFilePath(void) const { return absoluteFilePath; }
+        FunctionInfoPtr getFunctionInfo(const string& functionName);
 
     private:
-        FunctionInfo browseFunctionDefinition(shared_ptr<list<FunctionInfo>> functionList, TokenList& tokenList, Token currentToken);
+        FunctionInfoPtr browseFunctionDefinition(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken);
 
-        string filePath {};
+        string absoluteFilePath {};
         string fileExtension {};
 
-        shared_ptr<RowedFile> rowedFilePtr;
-        map<string, FunctionInfo> functionsDefinition;
-        shared_ptr<list<string>> functionsDefinitionName;
+        RowedFilePtr rowedFilePtr;
+        map<string, FunctionInfoPtr> functionsDefinition;
+        StringListPtr functionsDefinitionName;
 };
 
 #endif // PARSEDFILE_H

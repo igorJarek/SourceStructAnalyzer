@@ -2,7 +2,7 @@
 #define TOKENLIST_H
 
 #include "Token.h"
-#include <memory>
+#include <Typedefs.h>
 
 class TokenListException
 {
@@ -23,9 +23,7 @@ class TokenListEndToken : public TokenListException
 class TokenList
 {
     public:
-        using ListIterator = list<Token>::iterator;
-
-        TokenList(shared_ptr<list<Token>> tokenList);
+        TokenList(TokenListPtr tokenList);
         ~TokenList();
 
         Token get();
@@ -33,8 +31,8 @@ class TokenList
         void seek(uint64_t offset);
 
     private:
-        shared_ptr<list<Token>> tokenListPtr;
-        ListIterator iterator;
+        TokenListPtr tokenListPtr;
+        TokenListIter iterator;
 };
 
 #endif // TOKENLIST_H

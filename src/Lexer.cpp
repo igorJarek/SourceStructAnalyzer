@@ -98,13 +98,13 @@ bool is_identifier_char(char c)
         return false;
 }
 
-Lexer::Lexer(RowedFile& _rowedFile)
+Lexer::Lexer(RowedFilePtr _rowedFile)
 {
     rowedFile = _rowedFile;
-    rowedFile.resetStringIndexPtr();
+    rowedFile->resetStringIndexPtr();
 }
 
-TokenList Lexer::parse()
+TokenList Lexer::parse(void)
 {
     std::shared_ptr<list<Token>> tList = make_shared<list<Token>>();
 
@@ -120,15 +120,15 @@ TokenList Lexer::parse()
     return tokenList;
 }
 
-Token Lexer::next() noexcept
+Token Lexer::next(void) noexcept
 {
-    while(is_space(rowedFile.peek().c))
+    while(is_space(rowedFile->peek().c))
     {
-        char c = rowedFile.get().c;
+        char c = rowedFile->get().c;
         (void)c;
     }
 
-    CharInfo cInfo = rowedFile.get();
+    CharInfo cInfo = rowedFile->get();
     switch (cInfo.c)
     {
         case '\0':
@@ -268,9 +268,9 @@ Token Lexer::name(CharInfo cInfo) noexcept
     uint32_t endPos     {0};
     CharInfo newCInfo;
 
-    while(is_identifier_char(rowedFile.peek().c))
+    while(is_identifier_char(rowedFile->peek().c))
     {
-        newCInfo = rowedFile.get();
+        newCInfo = rowedFile->get();
         name += newCInfo.c;
         endPos = newCInfo.pos;
     }
@@ -280,16 +280,16 @@ Token Lexer::name(CharInfo cInfo) noexcept
         hashSymbol = false;
         set<string>::iterator result = preprocessorKeywordsSet.find(name);
         if(result != preprocessorKeywordsSet.end())
-            return Token(Token::Kind::PreprocessorKeyword, name, startLine, Token::Pos(startPos, endPos));
+            return Token(Token::Kind::PreprocessorKeyword, name, startLine, Pos(startPos, endPos));
     }
     else
     {
         set<string>::iterator result = keywordsSet.find(name);
         if(result != keywordsSet.end())
-            return Token(Token::Kind::Keyword, name, startLine, Token::Pos(startPos, endPos));
+            return Token(Token::Kind::Keyword, name, startLine, Pos(startPos, endPos));
     }
 
-    return Token(Token::Kind::Identifier, name, startLine, Token::Pos(startPos, endPos));
+    return Token(Token::Kind::Identifier, name, startLine, Pos(startPos, endPos));
 }
 
 Token Lexer::number(CharInfo cInfo) noexcept
@@ -300,35 +300,35 @@ Token Lexer::number(CharInfo cInfo) noexcept
     uint32_t endPos     {0};
     CharInfo newCInfo;
 
-    while(is_digit(rowedFile.peek().c))
+    while(is_digit(rowedFile->peek().c))
     {
-        newCInfo = rowedFile.get();
+        newCInfo = rowedFile->get();
         number += newCInfo.c;
         endPos = newCInfo.pos;
     }
 
-    return Token(Token::Kind::Number, number, startLine, Token::Pos(startPos, endPos));
+    return Token(Token::Kind::Number, number, startLine, Pos(startPos, endPos));
 }
 
 Token Lexer::slashOrComment(CharInfo cInfo) noexcept
 {
-    char peek {rowedFile.peek().c};
+    char peek {rowedFile->peek().c};
     if(peek == '/')
     {
-        char c = rowedFile.get().c;
+        char c = rowedFile->get().c;
         (void)c;
-        while(rowedFile.get().c != '\n');
+        while(rowedFile->get().c != '\n');
         return next();
     }
     else if(peek == '*')
     {
-        char c = rowedFile.get().c;
+        char c = rowedFile->get().c;
         (void)c;
         bool loopBreaker {false};
         while(!loopBreaker)
         {
-            while(rowedFile.get().c != '*');
-            c = rowedFile.get().c;
+            while(rowedFile->get().c != '*');
+            c = rowedFile->get().c;
             if(c == '/')
                loopBreaker = true;
         }

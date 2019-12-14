@@ -9,13 +9,13 @@
 class Logger
 {
     private:
-        Logger();
+        Logger(void);
         Logger(const Logger&);
         ~Logger();
 
         std::fstream fileStream;
     public:
-        static Logger& get()
+        static Logger& get(void)
         {
             static Logger instance;
             return instance;

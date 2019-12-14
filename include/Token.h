@@ -7,6 +7,7 @@
 #define TOKEN_H
 
 #include <RowedFile.h> // CharInfo structure
+#include <Typedefs.h>
 
 class Token
 {
@@ -49,8 +50,6 @@ class Token
             Unexpected,
             End
         };
-
-        using Pos = pair<uint32_t, uint32_t>;
 
         Token() = default;
         Token(Kind k, CharInfo cInfo) noexcept : m_kind{k}

@@ -1,14 +1,14 @@
 #include <FunctionBlock.h>
 
-FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range, std::list<unsigned int>& detectedFuntions)
+FunctionBlock::FunctionBlock(RowedFile& rowedFile, const string& functionName, Pos range, std::list<unsigned int>& detectedFuntions)
 {
     fileRange = range;
     funtionLineDetectedList = detectedFuntions;
 
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
-    int startYPos = 0;
-    int maxWidth = 0;
-    int currentLine = 0;
+    uint32_t startYPos = 0;
+    uint32_t maxWidth = 0;
+    uint32_t currentLine = 0;
 
     searchingFunction.setFont(Resource::instance().getFuncBlockFont());
     searchingFunction.setString(functionName);

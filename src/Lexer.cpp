@@ -106,27 +106,23 @@ Lexer::Lexer(RowedFilePtr _rowedFile)
 
 TokenList Lexer::parse(void)
 {
-    std::shared_ptr<list<Token>> tList = make_shared<list<Token>>();
-
+    TokenListPtr tList = make_shared<list<Token>>();
     Token token;
+
     do
     {
         token = next();
         tList->push_back(token);
-    }while(!token.is(Token::Kind::End));
+    }while(token.is_not(Token::Kind::End));
 
     TokenList tokenList(tList);
-
     return tokenList;
 }
 
 Token Lexer::next(void) noexcept
 {
     while(is_space(rowedFile->peek().c))
-    {
-        char c = rowedFile->get().c;
-        (void)c;
-    }
+        rowedFile->get();
 
     CharInfo cInfo = rowedFile->get();
     switch (cInfo.c)
@@ -315,22 +311,18 @@ Token Lexer::slashOrComment(CharInfo cInfo) noexcept
     char peek {rowedFile->peek().c};
     if(peek == '/')
     {
-        char c = rowedFile->get().c;
-        (void)c;
+        rowedFile->get();
         while(rowedFile->get().c != '\n');
         return next();
     }
     else if(peek == '*')
     {
-        char c = rowedFile->get().c;
-        (void)c;
-        bool loopBreaker {false};
-        while(!loopBreaker)
+        rowedFile->get();
+        while(true)
         {
             while(rowedFile->get().c != '*');
-            c = rowedFile->get().c;
-            if(c == '/')
-               loopBreaker = true;
+            if(rowedFile->get().c == '/')
+               break;
         }
 
         return next();

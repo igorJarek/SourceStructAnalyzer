@@ -17,9 +17,6 @@ bool is_space(char c);
 bool is_digit(char c);
 bool is_identifier_char(char c);
 
-// TODO
-// 1. Fixed function like this : "%s(%u)" -> s function
-
 class Lexer
 {
     public:

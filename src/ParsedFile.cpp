@@ -157,8 +157,8 @@ void ParsedFile::parse()
 
                         functionsDefinitionName->push_back(currentToken.lexeme());
                         FunctionInfoPtr functionDefinitions = make_shared<FunctionInfo>(currentToken.lexeme(),
-                                                                                                 Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
-                                                                                                 Pos(0, 0));
+                                                                                        Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
+                                                                                        Pos(0, 0));
                         functionDefinitions->setFunctionList(functions);
                         functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
                         for(FunctionInfoPtr fInfo : *functions)

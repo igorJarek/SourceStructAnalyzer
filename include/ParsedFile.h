@@ -23,14 +23,15 @@ class ParsedFile
         ParsedFile(const string& fullFilePath);
         ~ParsedFile();
 
-        bool parse();
+        void parse();
 
         StringListPtr getFunctionsDefinitionName() { return functionsDefinitionName; }
         string getAbsoluteFilePath(void) const { return absoluteFilePath; }
         FunctionInfoPtr getFunctionInfo(const string& functionName);
 
     private:
-        FunctionInfoPtr browseFunctionDefinition(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken);
+        FunctionInfoPtr findFunctionCalls(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken);
+        void removeUnnecessaryTokens(TokenList& tokenList);
 
         string absoluteFilePath {};
         string fileExtension {};

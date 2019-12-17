@@ -29,17 +29,78 @@ bool ParsedFile::isFileSource(const string& extension)
         return false;
 }
 
-bool ParsedFile::parse()
+void ParsedFile::removeUnnecessaryTokens(TokenList& tokenList)
+{
+    Log << "\tRemove unnecessary tokens : " << Logger::endl;
+    for(Token currentToken = tokenList.get(); currentToken.is_not(Token::Kind::End); currentToken = tokenList.get())
+    {
+        if(currentToken.is(Token::Kind::Backslash))
+        {
+            try
+            {
+                Token nextToken = tokenList.peek();
+                if(nextToken.is(Token::Kind::DoubleQuote))
+                {
+                    Log << "\t\tBackslash+DoubleQuote. Skip : ["
+                    << currentToken.lexeme() << "(" << currentToken.line() << ") ,"
+                    << nextToken.lexeme() << "(" << nextToken.line() << ")]"
+                    << Logger::endl;
+
+                    tokenList.seek(1);
+                }
+            }
+            catch(TokenListEndToken endToken) { }
+        }
+        else if(currentToken.is(Token::Kind::DoubleQuote))
+        {
+            tokenList.remove(TokenList::RemovePos::AFTER_GET);
+            Log << "\t\tString. Delete : [";
+            try
+            {
+                Token token;
+                do
+                {
+                    token = tokenList.get();
+                    if(token.is(Token::Kind::Backslash))
+                    {
+                        Token nextToken = tokenList.peek();
+                        if(nextToken.is(Token::Kind::DoubleQuote))
+                        {
+                            Log << "Backslash+DoubleQuote. Skip : ["
+                            << token.lexeme()     << "(" << token.line()     << ") , "
+                            << nextToken.lexeme() << "(" << nextToken.line() << ")] , ";
+
+                            tokenList.seek(1);
+                            continue;
+                        }
+                    }
+
+                    Log << token.lexeme() << "(line:" << token.line() << ") , ";
+                    tokenList.remove(TokenList::RemovePos::AFTER_GET);
+                }while(token.is_not(Token::Kind::DoubleQuote));
+
+                Log << "]" << Logger::endl;
+            }
+            catch(TokenListEndToken endToken) { }
+        }
+    }
+}
+
+void ParsedFile::parse()
 {
     Lexer lexer(rowedFilePtr);
     TokenList tokenList = lexer.parse();
+    removeUnnecessaryTokens(tokenList);
+    tokenList.resetIterator();
+
+    Log << "\tSearching function definitions : " << Logger::endl;
 
     for(Token currentToken = tokenList.get(); currentToken.is_not(Token::Kind::End); currentToken = tokenList.get())
     {
         if(currentToken.is(Token::Kind::Unexpected))
         {
-            Log << "\t\tUNEXPECTED TOKEN ("<< currentToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
-            return false;
+            Log << "UNEXPECTED TOKEN ("<< currentToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
+            continue;
         }
         else if(currentToken.is(Token::Kind::Identifier))
         {
@@ -85,7 +146,7 @@ bool ParsedFile::parse()
                                     Token token = tokenList.peek();
                                     if(token.is(Token::Kind::LeftParen))
                                     {
-                                        FunctionInfoPtr fInfo = browseFunctionDefinition(functions, tokenList, closeCurlyOrIdentifierToken);
+                                        FunctionInfoPtr fInfo = findFunctionCalls(functions, tokenList, closeCurlyOrIdentifierToken);
                                         functions->push_back(fInfo);
                                     }
                                 }
@@ -100,25 +161,19 @@ bool ParsedFile::parse()
                                                                                                  Pos(0, 0));
                         functionDefinitions->setFunctionList(functions);
                         functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
-
                         for(FunctionInfoPtr fInfo : *functions)
-                            Log << "\t\t\tFunction line(" << fInfo->getLine().first << "; " << fInfo->getLine().second << ")"
+                            Log << "\t\t\tFunction call (" << fInfo->getLine().first << "; " << fInfo->getLine().second << ")"
                             << " pos(" << fInfo->getPos().first << "; " << fInfo->getPos().second << ") : "
                             << fInfo->getName() << Logger::endl;
                     }
                 }
             }
-            catch(TokenListEndToken endToken)
-            {
-                Log << endToken.what() << Logger::endl;
-            }
+            catch(TokenListEndToken endToken) { }
         }
     }
-
-    return true;
 }
 
-FunctionInfoPtr ParsedFile::browseFunctionDefinition(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken)
+FunctionInfoPtr ParsedFile::findFunctionCalls(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken)
 {
     tokenList.get();
     uint32_t openBracketCount   {1};
@@ -137,15 +192,15 @@ FunctionInfoPtr ParsedFile::browseFunctionDefinition(FunctionInfoListPtr functio
             Token nextToken = tokenList.peek();
             if(nextToken.is(Token::Kind::LeftParen))
             {
-                FunctionInfoPtr fInfo = browseFunctionDefinition(functionList, tokenList, token);
+                FunctionInfoPtr fInfo = findFunctionCalls(functionList, tokenList, token);
                 functionList->push_back(fInfo);
             }
         }
     }while(openBracketCount != closeBracketCount);
 
-    FunctionInfoPtr functionInfo = make_shared<FunctionInfo> (currentToken.lexeme(),
-                                                                       Pos(currentToken.line(), token.line()),
-                                                                       Pos(currentToken.pos().first, token.pos().first));
+    FunctionInfoPtr functionInfo = make_shared<FunctionInfo>(currentToken.lexeme(),
+                                                             Pos(currentToken.line(), token.line()),
+                                                             Pos(currentToken.pos().first, token.pos().first));
 
     return functionInfo;
 }
@@ -155,11 +210,10 @@ FunctionInfoPtr ParsedFile::getFunctionInfo(const string& functionName)
     try
     {
         FunctionInfoPtr FunctionInfo = functionsDefinition.at(functionName);
+        return FunctionInfo;
     }
     catch(const std::out_of_range& oor)
     {
-
+        return nullptr;
     }
-
-    return nullptr;
 }

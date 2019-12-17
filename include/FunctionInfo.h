@@ -12,6 +12,7 @@ class FunctionInfo
         ~FunctionInfo();
 
         void setFunctionList(FunctionInfoListPtr list);
+        FunctionInfoListPtr getFunctionList(void) const { return functions; }
 
         string getName(void) const { return functionName; }
         Pos getLine(void) const { return line; }

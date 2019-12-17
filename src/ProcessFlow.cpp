@@ -70,7 +70,7 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
                     Log << "\t\tUNEXPECTED TOKEN IN : " << absoluteFilePath << Logger::endl;
 
                 ++parsedFileCount;
-                shared_ptr<list<string>> functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
+                StringListPtr functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
 
                 for(string functionName : *functionsNameList)
                 {

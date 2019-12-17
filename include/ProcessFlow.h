@@ -10,13 +10,13 @@
 #include <queue>
 #include <vector>
 #include <list>
-#include <regex>
 
 #include <ParsedFile.h>
 #include <FunctionInfo.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
 #include <Logger.h>
+#include <Typedefs.h>
 
 using namespace std;
 
@@ -38,11 +38,6 @@ class ProcessFlowWrongParamCount : public ProcessFlowException
 
 class ProcessFlow
 {
-    public:
-        using ParsedFilePtr = shared_ptr<ParsedFile>;
-        using ParsedFileListPtr = shared_ptr<list<ParsedFilePtr>>;
-        using ParsedFilesMap = map<string, ParsedFileListPtr>;
-
     public:
         ProcessFlow(int argc, char *argv[]);
         ~ProcessFlow();
@@ -75,7 +70,7 @@ class ProcessFlow
         uint32_t parsedFileCount {0};
         uint32_t filesCount {0};
 
-        ParsedFilesMap parsedFileTree;
+        map<string, ParsedFileListPtr> parsedFileTree;
 
         queue<string> functionCallsQueue;
         map<string, int> fuctionCallsMap;

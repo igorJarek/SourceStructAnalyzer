@@ -50,7 +50,7 @@ class ProcessFlow
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
         // stage 2
-        void openMainFile();
+        bool openMainFile();
         // stage 3
         void iteratesCallsQueue();
         // stage 4
@@ -73,8 +73,7 @@ class ProcessFlow
         map<string, ParsedFileListPtr> parsedFileTree;
 
         queue<string> functionCallsQueue;
-        map<string, int> fuctionCallsMap;
-        vector<list<FunctionBlock>>stages;
+        set<string> fuctionCallsSet;
 };
 
 #endif // PROCESS_H

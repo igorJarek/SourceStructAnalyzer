@@ -65,9 +65,7 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
             {
                 Log << "\tParse file : " << absoluteFilePath << Logger::endl;
                 ParsedFilePtr parsedFilePtr = make_shared<ParsedFile>(absoluteFilePath);
-                bool ret = parsedFilePtr->parse();
-                if(!ret)
-                    Log << "\t\tUNEXPECTED TOKEN IN : " << absoluteFilePath << Logger::endl;
+                parsedFilePtr->parse();
 
                 ++parsedFileCount;
                 StringListPtr functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
@@ -106,80 +104,71 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
     return true;
 }
 
-/*void ProcessFlow::openMainFile()
+bool ProcessFlow::openMainFile()
 {
     Log << "Stage 2 : openMainFile" << Logger::endl;
-    RowedFile mainFile(relativeMainFilePath);
-    std::list<unsigned int> functionDetectedLines;
+    ParsedFilePtr mainFunctionPtr;
 
-    regex includePattern {"(\\t*| *)#include(\\t*| *)(\\<|\\\")([a-zA-Z0-9_/]+)(\\.h|\\.hpp)(\\>|\\\")"};
-    regex basicFuncDetectionPattern {"(\\w+) *\\("};
-    regex closeBracket(" *\\} *");
-
-    int lineNumber = 0;
-    string currentLine {};
-
-    while(!mainFile.isEOF())
+    try
     {
-        currentLine = mainFile.getNextRow();
-        lineNumber++;
-
-        if(lineNumber < mainFunctionPosition)
+        ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(mainFunction);
+        if(parsedFileListPtr->size() == 0)
         {
-            smatch result;
-            if(regex_search(currentLine, result, includePattern))   // #include
-            {
-                string fileInclude = result[4];
-                size_t fileIncludePos = fileInclude.rfind('/');
-                if(fileIncludePos != string::npos)
-                    fileInclude = fileInclude.substr(fileIncludePos + 1, string::npos);
-
-                Log << "\tInclude detected : " << fileInclude << Logger::endl;
-                includeList.push_back(fileInclude);
-                continue;
-            }
+            Log << "\tSource code doesn't contain " << mainFunction << " function!" << Logger::endl;
+            return false;
         }
-        else if(lineNumber == mainFunctionPosition)
-            Log << "\tMain function (" << lineNumber << ") : " << currentLine << Logger::endl;
-        else if (lineNumber > mainFunctionPosition)
+        else
         {
-            Log << "\tLine : " << lineNumber << Logger::endl;
-
-            if(regex_match(currentLine, closeBracket)) // function end {
-                break;
-
-            smatch result;
-            string::const_iterator searchStart(currentLine.cbegin());
-            while(regex_search(searchStart, currentLine.cend(), result, basicFuncDetectionPattern)) // functions call
+            for(ParsedFilePtr parsedFilePtr : *parsedFileListPtr)
             {
-                string functionName = result[1];
-                string functionParams = result.suffix();
-
-                if(isFunctionName(functionName) && isFunctionParams(functionParams))
+                string filePath {parsedFilePtr->getAbsoluteFilePath()};
+                size_t pos = filePath.find(relativeMainFilePath);
+                if(pos != string::npos)
                 {
-                    map<string, int>::iterator iterator = fuctionCallsMap.find(functionName);
-                    if (iterator == fuctionCallsMap.end())
-                    {
-                        Log << "\t\tFunction detected : " << functionName << Logger::endl;
-                        fuctionCallsMap.emplace(functionName, lineNumber);
-                        functionCallsQueue.push(functionName);
-                        functionDetectedLines.push_back(lineNumber);
-                    }
+                    mainFunctionPtr = parsedFilePtr;
+                    break;
                 }
+            }
 
-                searchStart = result.suffix().first;
+            if(!mainFunctionPtr)
+            {
+                Log << "\tProgram can't found " << mainFunction << " function!" << Logger::endl;
+                return false;
             }
         }
     }
+    catch(const std::out_of_range& oor)
+    {
+        Log << "\tUnable to open main file!" << Logger::endl;
+        return false;
+    }
 
-    list<FunctionBlock> stage0;
-    mainFile.resetFileReadedPtr();
-    FunctionBlock fb {mainFile, "main function", std::pair<int, int>{0, mainFile.getSize()}, functionDetectedLines};
-    stage0.push_back(fb);
-    stages.push_back(stage0);
+    FunctionInfoPtr mainFunctionInfo = mainFunctionPtr->getFunctionInfo(mainFunction);
+    Pos mainFunctionPos = mainFunctionInfo->getLine();
+    FunctionInfoListPtr functions = mainFunctionInfo->getFunctionList();
+
+    Log << "\tProgram found " << mainFunction << "<"<< mainFunctionPos.first << "; " << mainFunctionPos.second << "> function in : " \
+    << mainFunctionPtr->getAbsoluteFilePath() << Logger::endl;
+
+    for(FunctionInfoPtr fInfo : *functions)
+    {
+        Log << "\t\tFunctions call in main function : " << fInfo->getName();
+        set<string>::iterator result = fuctionCallsSet.find(fInfo->getName());
+        if(result != fuctionCallsSet.end())
+        {
+            Log << Logger::endl;
+            continue;
+        }
+
+        Log << " (Add to function calls queue)" << Logger::endl;
+        fuctionCallsSet.insert(fInfo->getName());
+        functionCallsQueue.push(fInfo->getName());
+    }
+
+    return true;
 }
 
-void ProcessFlow::iteratesCallsQueue()
+/*void ProcessFlow::iteratesCallsQueue()
 {
     Log << "Stage 3 : iteratesCallsQueue" << Logger::endl;
     do

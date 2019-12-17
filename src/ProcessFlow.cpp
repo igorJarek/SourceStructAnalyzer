@@ -72,25 +72,35 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
                 ++parsedFileCount;
                 StringListPtr functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
 
+                Log << "\tAdd function definitions to ParsedFile Tree : " << Logger::endl;
                 for(string functionName : *functionsNameList)
                 {
+                    Log << "\t\t" << functionName << " -> ";
                     try
                     {
                         ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(functionName);
                         parsedFileListPtr->push_back(parsedFilePtr);
+                        Log << "(" << parsedFileListPtr->size() << ") -> ";
+                        for(ParsedFilePtr pFP : *parsedFileListPtr)
+                            Log << pFP->getAbsoluteFilePath() << ", ";
                     }
                     catch(const std::out_of_range& oor)
                     {
                         ParsedFileListPtr parsedFileListPtr = make_shared<list<ParsedFilePtr>>();
                         parsedFileListPtr->push_back(parsedFilePtr);
                         parsedFileTree.insert(pair<string, ParsedFileListPtr>(functionName, parsedFileListPtr));
+                        Log << "(" << parsedFileListPtr->size() << ") -> ";
+                        for(ParsedFilePtr pFP : *parsedFileListPtr)
+                            Log << pFP->getAbsoluteFilePath() << ", ";
                     }
+
+                    Log << Logger::endl;
                 }
             }
         }
     }while(FindNextFile(hFind, &findDataStruct) != 0);
 
-    Log << "Parsed file : " << parsedFileCount << " \\ " << filesCount << Logger::endl;
+    Log << "\t---Parsed file : " << parsedFileCount << " \\ " << filesCount << " ---" << Logger::endl;
 
     FindClose(hFind);
     return true;

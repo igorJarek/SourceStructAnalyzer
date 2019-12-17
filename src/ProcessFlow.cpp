@@ -11,13 +11,13 @@ ProcessFlow::ProcessFlow(int argc, char *argv[])
     relativeMainFilePath = string(argv[1]);
     absoluteMainFilePath = exeFolderPath + relativeMainFilePath;
 
-    mainFunctionPosition = stoi(argv[2]);
+    mainFunction = string(argv[2]);
 
     Log << "Exe path : " << exePath << Logger::endl;
     Log << "Exe folder path : " << exeFolderPath << Logger::endl;
     Log << "Relative main file path : " << relativeMainFilePath << Logger::endl;
     Log << "Absolute main file path : " << absoluteMainFilePath << Logger::endl;
-    Log << "Main function position : " << mainFunctionPosition << Logger::endl;
+    Log << "Main function : " << mainFunction << Logger::endl;
     Log << Logger::endl;
 }
 

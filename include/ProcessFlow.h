@@ -42,8 +42,8 @@ class ProcessFlow
         ProcessFlow(int argc, char *argv[]);
         ~ProcessFlow();
 
-        string getExePath() const { return exePath; }
-        string getExeFolderPath() const { return exeFolderPath; }
+        string getExePath()         const { return exePath; }
+        string getExeFolderPath()   const { return exeFolderPath; }
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
 
@@ -65,7 +65,7 @@ class ProcessFlow
         string exeFolderPath;
         string relativeMainFilePath;
         string absoluteMainFilePath;
-        int mainFunctionPosition;
+        string mainFunction;
 
         uint32_t parsedFileCount {0};
         uint32_t filesCount {0};

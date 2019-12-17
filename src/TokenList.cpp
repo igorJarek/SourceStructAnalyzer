@@ -11,6 +11,11 @@ TokenList::~TokenList()
     //dtor
 }
 
+void TokenList::resetIterator(void)
+{
+    iterator = tokenListPtr->begin();
+}
+
 Token TokenList::get()
 {
     Token token = *iterator;
@@ -38,5 +43,17 @@ void TokenList::seek(uint64_t offset)
         ++iterator;
         if(iterator == tokenListPtr->end())
             throw TokenListEndToken();
+    }
+}
+
+void TokenList::remove(RemovePos pos)
+{
+    if(pos == RemovePos::AFTER_GET)
+        tokenListPtr->erase(prev(iterator));
+    else if(pos == RemovePos::AFTER_PEEK)
+    {
+        TokenListIter currentIterator = iterator;
+        iterator = next(iterator);
+        tokenListPtr->erase(currentIterator);
     }
 }

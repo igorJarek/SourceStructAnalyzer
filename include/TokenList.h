@@ -23,12 +23,21 @@ class TokenListEndToken : public TokenListException
 class TokenList
 {
     public:
+        enum class RemovePos
+        {
+            AFTER_GET,
+            AFTER_PEEK
+        };
+
+
         TokenList(TokenListPtr tokenList);
         ~TokenList();
 
-        Token get();
+        void resetIterator(void);
+        Token get(void);
         Token peek(uint64_t offset = 0);
         void seek(uint64_t offset);
+        void remove(RemovePos pos);
 
     private:
         TokenListPtr tokenListPtr;

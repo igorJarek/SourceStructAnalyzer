@@ -9,6 +9,7 @@
 
 using namespace std;
 
+class FunctionBlock;
 class FunctionInfo;
 class ParsedFile;
 class RowedFile;
@@ -29,5 +30,7 @@ using StringListPtr         = shared_ptr<list<string>>;
 
 using TokenListIter         = list<Token>::iterator;
 using TokenListPtr          = shared_ptr<list<Token>>;
+
+using FunctionBlockListPtr  = shared_ptr<list<FunctionBlock>>;
 
 #endif // TYPEDEFS_H_INCLUDED

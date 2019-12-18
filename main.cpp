@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        window.clear(sf::Color::White);
+        window.clear(sf::Color::Black);
         window.display();
     }
 

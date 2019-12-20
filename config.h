@@ -8,9 +8,12 @@ const std::string FONT_PATH = "courier-new.ttf";
 const float ZOOM_STEP {0.1f}; // 10 % zoom per "one click :)"
 
 // Functional Block Config
-const int FB_CHAR_SIZE {10};
-const int FB_PADDING {6};
-const int FB_BORDER_THICKNESS {4};
+const uint16_t FB_CHAR_SIZE                 {11};
+const uint16_t FB_PADDING                   {6};
+const uint16_t FB_BORDER_THICKNESS          {4};
+const uint16_t FB_GAP_BETWEEN_PATH_AND_NAME {10};
+const uint16_t FB_GAP_BETWEEN_NAME_AND_CODE {16};
+const int16_t FB_GAP_BETWEEN_CODE_AND_CODE  {-2};
 
 const sf::Color FB_DETECTED_FUNCTION_COLOR{255, 50, 50};
 

@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
         }
 
         window.clear(sf::Color::Black);
+        processFlow.drawStages(window);
         window.display();
     }
 

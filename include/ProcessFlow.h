@@ -3,10 +3,9 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <string>
-#include <map>
 #include <windows.h>
-#include <iostream>
 #include <exception>
+#include <map>
 #include <queue>
 #include <vector>
 #include <list>
@@ -74,6 +73,8 @@ class ProcessFlow
 
         queue<string> functionCallsQueue;
         set<string> fuctionCallsSet;
+
+        vector<FunctionBlockListPtr> functionBlockVector;
 };
 
 #endif // PROCESS_H

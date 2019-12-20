@@ -28,6 +28,7 @@ class ParsedFile
         StringListPtr getFunctionsDefinitionName() { return functionsDefinitionName; }
         string getAbsoluteFilePath(void) const { return absoluteFilePath; }
         FunctionInfoPtr getFunctionInfo(const string& functionName);
+        RowedFilePtr getRowedFile(void) { return rowedFilePtr; }
 
     private:
         FunctionInfoPtr findFunctionCalls(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken);

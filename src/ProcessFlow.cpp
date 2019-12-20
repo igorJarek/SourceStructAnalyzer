@@ -165,6 +165,12 @@ bool ProcessFlow::openMainFile()
         functionCallsQueue.push(fInfo->getName());
     }
 
+    FunctionBlock mainFunctionBlock(mainFunctionPtr, mainFunction);
+
+    FunctionBlockListPtr functionBlockListPtr = make_shared<list<FunctionBlock>>();
+    functionBlockListPtr->push_back(mainFunctionBlock);
+    functionBlockVector.push_back(functionBlockListPtr);
+
     return true;
 }
 
@@ -292,20 +298,20 @@ void ProcessFlow::prepareFunctionBlocks()
 
         xPosition += stagesInfo[stageListIndex].x + ST_X_GAP;
     }
-}
+}*/
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)
 {
-    for(list<FunctionBlock> fbList : stages)
+    for(FunctionBlockListPtr fbListPtr : functionBlockVector)
     {
-        for(FunctionBlock& fb : fbList)
+        for(FunctionBlock& fb : *fbListPtr)
         {
             window.draw(fb);
         }
     }
 }
 
-void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
+/*void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
 {
     if(stages.size() > 0)
     {

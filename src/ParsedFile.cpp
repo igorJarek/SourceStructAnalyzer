@@ -160,10 +160,10 @@ void ParsedFile::parse()
                                                                                                     Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
                                                                                                     functions);
                         functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
-                        /*for(FunctionCallPtr fCall : *functions)
+                        for(FunctionCallPtr fCall : *functions)
                             Log << "\t\t\tFunction call line(" << fCall->getFunctionNameLine() << ")"
                             << " pos(" << fCall->getFunctionNamePos().first << "; " << fCall->getFunctionNamePos().second << ") : "
-                            << fCall->getFunctionName() << Logger::endl;*/
+                            << fCall->getFunctionName() << Logger::endl;
                     }
                 }
             }

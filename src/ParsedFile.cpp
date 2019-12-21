@@ -130,7 +130,7 @@ void ParsedFile::parse()
                         peekIndex = 0;
                         openBracketCount = 1;
                         closeBracketCount = 0;
-                        FunctionInfoListPtr functions = make_shared<list<shared_ptr<FunctionInfo>>>();
+                        FunctionCallListPtr functions = make_shared<list<FunctionCallPtr>>();
 
                         do
                         {
@@ -146,8 +146,8 @@ void ParsedFile::parse()
                                     Token token = tokenList.peek();
                                     if(token.is(Token::Kind::LeftParen))
                                     {
-                                        FunctionInfoPtr fInfo = findFunctionCalls(functions, tokenList, closeCurlyOrIdentifierToken);
-                                        functions->push_back(fInfo);
+                                        FunctionCallPtr fCall = findFunctionCalls(functions, tokenList, closeCurlyOrIdentifierToken);
+                                        functions->push_back(fCall);
                                     }
                                 }
                             }
@@ -156,15 +156,14 @@ void ParsedFile::parse()
                         Log << "\t\tFunction definition (" << currentToken.line() << "; " << closeCurlyOrIdentifierToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
 
                         functionsDefinitionName->push_back(currentToken.lexeme());
-                        FunctionInfoPtr functionDefinitions = make_shared<FunctionInfo>(currentToken.lexeme(),
-                                                                                        Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
-                                                                                        Pos(0, 0));
-                        functionDefinitions->setFunctionList(functions);
+                        FunctionDefinitionPtr functionDefinitions = make_shared<FunctionDefinition>(currentToken.lexeme(),
+                                                                                                    Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
+                                                                                                    functions);
                         functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
-                        for(FunctionInfoPtr fInfo : *functions)
-                            Log << "\t\t\tFunction call (" << fInfo->getLine().first << "; " << fInfo->getLine().second << ")"
-                            << " pos(" << fInfo->getPos().first << "; " << fInfo->getPos().second << ") : "
-                            << fInfo->getName() << Logger::endl;
+                        /*for(FunctionCallPtr fCall : *functions)
+                            Log << "\t\t\tFunction call line(" << fCall->getFunctionNameLine() << ")"
+                            << " pos(" << fCall->getFunctionNamePos().first << "; " << fCall->getFunctionNamePos().second << ") : "
+                            << fCall->getFunctionName() << Logger::endl;*/
                     }
                 }
             }
@@ -173,9 +172,9 @@ void ParsedFile::parse()
     }
 }
 
-FunctionInfoPtr ParsedFile::findFunctionCalls(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken)
+FunctionCallPtr ParsedFile::findFunctionCalls(FunctionCallListPtr functionCallList, TokenList& tokenList, Token currentToken)
 {
-    tokenList.get();
+    Token openBracketToken = tokenList.get();
     uint32_t openBracketCount   {1};
     uint32_t closeBracketCount  {0};
     Token token;
@@ -192,25 +191,23 @@ FunctionInfoPtr ParsedFile::findFunctionCalls(FunctionInfoListPtr functionList, 
             Token nextToken = tokenList.peek();
             if(nextToken.is(Token::Kind::LeftParen))
             {
-                FunctionInfoPtr fInfo = findFunctionCalls(functionList, tokenList, token);
-                functionList->push_back(fInfo);
+                FunctionCallPtr fCall = findFunctionCalls(functionCallList, tokenList, token);
+                functionCallList->push_back(fCall);
             }
         }
     }while(openBracketCount != closeBracketCount);
 
-    FunctionInfoPtr functionInfo = make_shared<FunctionInfo>(currentToken.lexeme(),
-                                                             Pos(currentToken.line(), token.line()),
-                                                             Pos(currentToken.pos().first, token.pos().first));
+    FunctionCallPtr functionCallPtr = make_shared<FunctionCall>(currentToken, openBracketToken, token);
 
-    return functionInfo;
+    return functionCallPtr;
 }
 
-FunctionInfoPtr ParsedFile::getFunctionInfo(const string& functionName)
+FunctionDefinitionPtr ParsedFile::getFunctionDefinition(const string& functionName)
 {
     try
     {
-        FunctionInfoPtr FunctionInfo = functionsDefinition.at(functionName);
-        return FunctionInfo;
+        FunctionDefinitionPtr functionDefinition = functionsDefinition.at(functionName);
+        return functionDefinition;
     }
     catch(const std::out_of_range& oor)
     {

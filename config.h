@@ -15,7 +15,7 @@ const uint16_t FB_GAP_BETWEEN_PATH_AND_NAME {10};
 const uint16_t FB_GAP_BETWEEN_NAME_AND_CODE {16};
 const int16_t FB_GAP_BETWEEN_CODE_AND_CODE  {-2};
 
-const sf::Color FB_DETECTED_FUNCTION_COLOR{255, 50, 50};
+const sf::Color FB_DETECTED_FUNCTION_COLOR  {255, 50, 50};
 
 // Display Stages Config
 const int ST_X_GAP {30};

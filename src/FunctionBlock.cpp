@@ -4,7 +4,6 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
 {
     setOrigin(-(FB_PADDING+FB_BORDER_THICKNESS), -(FB_PADDING+FB_BORDER_THICKNESS));
     uint64_t startYPos   {0};
-    uint64_t startXPos   {0};
     uint64_t maxWidth    {0};
     uint64_t currentLine {0};
     sf::FloatRect floatRect;
@@ -12,7 +11,7 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
     absolutePath.setFont(Resource::instance().getFuncBlockFont());
     absolutePath.setString(parsedFilePtr->getAbsoluteFilePath());
     absolutePath.setCharacterSize(FB_CHAR_SIZE + 2);
-    absolutePath.setFillColor(sf::Color::Red);
+    absolutePath.setFillColor(sf::Color(80, 80, 255));
     absolutePath.setPosition(0, startYPos);
 
     floatRect = absolutePath.getLocalBounds();
@@ -23,7 +22,7 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
 
     name.setFont(Resource::instance().getFuncBlockFont());
     name.setString(functionName);
-    name.setCharacterSize(FB_CHAR_SIZE + 4);
+    name.setCharacterSize(FB_CHAR_SIZE + 6);
     name.setFillColor(sf::Color(0, 128, 64));
     name.setPosition(0, startYPos);
 
@@ -36,9 +35,9 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
     RowedFilePtr rowedFilePtr = parsedFilePtr->getRowedFile();
     rowedFilePtr->resetIteratorPtr();
 
-    FunctionInfoPtr mainFunctionInfo = parsedFilePtr->getFunctionInfo(functionName);
-    Pos mainFunctionPos = mainFunctionInfo->getLine();
-    FunctionInfoListPtr functions = mainFunctionInfo->getFunctionList();
+    FunctionDefinitionPtr mainFunctionDefinition = parsedFilePtr->getFunctionDefinition(functionName);
+    Pos mainFunctionPos = mainFunctionDefinition->getLine();
+    FunctionCallListPtr functionsCallList = mainFunctionDefinition->getFunctionCallList();
 
     string currentLineString;
     string currentLineAmountString;
@@ -60,15 +59,28 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
 
         startYPos += static_cast<uint64_t>(floatRect.height) + FB_GAP_BETWEEN_CODE_AND_CODE;
 
-        pair<uint64_t, TextExt> row(currentLineAmountString.size(), codeLine);
-        rows.push_front(row);
+        // coloring
+        for(FunctionCallPtr fCall : *functionsCallList)
+        {
+            uint64_t lineNumberOffset {currentLineAmountString.size()};
+            if(fCall->getFunctionNameLine() == currentLine)
+                codeLine.changeCharactersColor(FB_DETECTED_FUNCTION_COLOR, fCall->getFunctionNamePos(), lineNumberOffset);
+
+            if(fCall->getOpenParenthesisLine() == currentLine)
+                codeLine.changeCharacterColor(FB_DETECTED_FUNCTION_COLOR, fCall->getOpenParenthesisPos().first, lineNumberOffset);
+
+            if(fCall->getCloseParenthesisLine() == currentLine)
+                codeLine.changeCharacterColor(FB_DETECTED_FUNCTION_COLOR, fCall->getCloseParenthesisPos().first, lineNumberOffset);
+        }
+
+        rows.push_front(codeLine);
     }
 
     border.setSize(sf::Vector2f(maxWidth + (2*FB_PADDING), startYPos + (2*FB_PADDING)));
     border.setPosition(-FB_PADDING, -FB_PADDING);
     border.setFillColor(sf::Color::Transparent);
     border.setOutlineThickness(FB_BORDER_THICKNESS);
-    border.setOutlineColor(sf::Color(128,0,0));
+    border.setOutlineColor(sf::Color(200,0,0));
 
     size.x = maxWidth   + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
     size.y = startYPos  + (2*FB_PADDING) + (2*FB_BORDER_THICKNESS);
@@ -86,8 +98,8 @@ void FunctionBlock::draw(sf::RenderTarget& target, sf::RenderStates states) cons
     target.draw(absolutePath, states);
     target.draw(name, states);
 
-    for(pair<uint64_t, TextExt> row : rows)
-        target.draw(row.second, states);
+    for(TextExt textExt : rows)
+        target.draw(textExt, states);
 
     target.draw(border, states);
 }

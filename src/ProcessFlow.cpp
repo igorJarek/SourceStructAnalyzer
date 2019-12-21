@@ -143,17 +143,17 @@ bool ProcessFlow::openMainFile()
         return false;
     }
 
-    FunctionInfoPtr mainFunctionInfo = mainFunctionPtr->getFunctionInfo(mainFunction);
+    FunctionDefinitionPtr mainFunctionInfo = mainFunctionPtr->getFunctionDefinition(mainFunction);
     Pos mainFunctionPos = mainFunctionInfo->getLine();
-    FunctionInfoListPtr functions = mainFunctionInfo->getFunctionList();
+    FunctionCallListPtr functions = mainFunctionInfo->getFunctionCallList();
 
     Log << "\tProgram found " << mainFunction << "<"<< mainFunctionPos.first << "; " << mainFunctionPos.second << "> function in : " \
     << mainFunctionPtr->getAbsoluteFilePath() << Logger::endl;
 
-    for(FunctionInfoPtr fInfo : *functions)
+    for(FunctionCallPtr fCall : *functions)
     {
-        Log << "\t\tFunctions call in main function : " << fInfo->getName();
-        set<string>::iterator result = fuctionCallsSet.find(fInfo->getName());
+        Log << "\t\tFunctions call in main function : " << fCall->getFunctionName();
+        set<string>::iterator result = fuctionCallsSet.find(fCall->getFunctionName());
         if(result != fuctionCallsSet.end())
         {
             Log << Logger::endl;
@@ -161,8 +161,8 @@ bool ProcessFlow::openMainFile()
         }
 
         Log << " (Add to function calls queue)" << Logger::endl;
-        fuctionCallsSet.insert(fInfo->getName());
-        functionCallsQueue.push(fInfo->getName());
+        fuctionCallsSet.insert(fCall->getFunctionName());
+        functionCallsQueue.push(fCall->getFunctionName());
     }
 
     FunctionBlock mainFunctionBlock(mainFunctionPtr, mainFunction);

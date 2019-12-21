@@ -25,7 +25,7 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         sf::Text absolutePath;
         sf::Text name;
 
-        list<pair<uint64_t, TextExt>> rows;
+        list<TextExt> rows;
         sf::RectangleShape border;
 };
 

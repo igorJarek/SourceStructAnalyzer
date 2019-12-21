@@ -11,7 +11,7 @@
 #include <list>
 
 #include <ParsedFile.h>
-#include <FunctionInfo.h>
+#include <FunctionDefinition.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
 #include <Logger.h>

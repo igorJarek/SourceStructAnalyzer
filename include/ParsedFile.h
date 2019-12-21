@@ -4,10 +4,11 @@
 #include <RowedFile.h>
 #include <Lexer.h>
 #include <Token.h>
-#include <FunctionInfo.h>
+#include <FunctionDefinition.h>
 #include <TokenList.h>
 #include <Logger.h>
 #include <Typedefs.h>
+#include <FunctionCall.h>
 
 #include <map>
 #include <list>
@@ -27,18 +28,18 @@ class ParsedFile
 
         StringListPtr getFunctionsDefinitionName() { return functionsDefinitionName; }
         string getAbsoluteFilePath(void) const { return absoluteFilePath; }
-        FunctionInfoPtr getFunctionInfo(const string& functionName);
+        FunctionDefinitionPtr getFunctionDefinition(const string& functionName);
         RowedFilePtr getRowedFile(void) { return rowedFilePtr; }
 
     private:
-        FunctionInfoPtr findFunctionCalls(FunctionInfoListPtr functionList, TokenList& tokenList, Token currentToken);
+        FunctionCallPtr findFunctionCalls(FunctionCallListPtr functionCallList, TokenList& tokenList, Token currentToken);
         void removeUnnecessaryTokens(TokenList& tokenList);
 
         string absoluteFilePath {};
         string fileExtension {};
 
         RowedFilePtr rowedFilePtr;
-        map<string, FunctionInfoPtr> functionsDefinition;
+        map<string, FunctionDefinitionPtr> functionsDefinition;
         StringListPtr functionsDefinitionName;
 };
 

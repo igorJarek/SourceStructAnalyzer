@@ -261,7 +261,7 @@ Token Lexer::name(CharInfo cInfo) noexcept
     string name         {cInfo.c};
     uint32_t startLine  {cInfo.line};
     uint32_t startPos   {cInfo.pos};
-    uint32_t endPos     {0};
+    uint32_t endPos     {cInfo.pos};
     CharInfo newCInfo;
 
     while(is_identifier_char(rowedFile->peek().c))

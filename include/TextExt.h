@@ -39,8 +39,8 @@ class TextExt : public Drawable, public Transformable
         void setOutlineColor(const Color& color);
         void setOutlineThickness(float thickness);
 
-        void changeCharacterColor(const sf::Color& newColor, uint64_t position);
-        void changeCharactersColor(const sf::Color& newColor, Pos position);
+        void changeCharacterColor(const sf::Color& newColor, uint64_t position, uint64_t offset = 0);
+        void changeCharactersColor(const sf::Color& newColor, Pos position, uint64_t offset = 0);
 
         const String& getString() const;
         const Font* getFont() const;

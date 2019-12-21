@@ -81,26 +81,32 @@ m_geometryNeedUpdate (false)
     ensureGeometryUpdate();
 }
 
-void TextExt::changeCharacterColor(const sf::Color& newColor, uint64_t position)
+void TextExt::changeCharacterColor(const sf::Color& newColor, uint64_t position, uint64_t offset)
 {
-    uint64_t startIndex {position * 6};
+    uint64_t startIndex {(position + offset) * 6};
     if(startIndex >= m_vertices.getVertexCount())
         return;
 
     for(size_t i = 0; i < 6; ++i)
-        m_vertices[startIndex + i].color = newColor;
+    {
+        if(m_vertices[startIndex + i].color != sf::Color::Transparent)
+            m_vertices[startIndex + i].color = newColor;
+    }
 }
 
-void TextExt::changeCharactersColor(const sf::Color& newColor, Pos position)
+void TextExt::changeCharactersColor(const sf::Color& newColor, Pos position, uint64_t offset)
 {
-    for(uint64_t startIndex {position.first}; startIndex <= position.second; ++startIndex)
+    for(uint64_t startIndex {position.first + offset}; startIndex <= (position.second + offset); ++startIndex)
     {
         uint64_t index = startIndex * 6;
         if(index >= m_vertices.getVertexCount())
             return;
 
         for(size_t i = 0; i < 6; ++i)
-            m_vertices[index + i].color = newColor;
+        {
+            if(m_vertices[index + i].color != sf::Color::Transparent)
+                m_vertices[index + i].color = newColor;
+        }
     }
 }
 
@@ -405,6 +411,11 @@ void TextExt::ensureGeometryUpdate() const
                 case L'\t': x += whitespaceWidth * 4; break;
                 case L'\n': y += lineSpacing; x = 0;  break;
             }
+
+            for(size_t i = 0; i < 6; ++i)
+                m_vertices.append(sf::Vertex(sf::Vector2f(0.f, 0.f),
+                                            sf::Color::Transparent,
+                                            sf::Vector2f(0.f, 0.f)));
 
             // Update the current bounds (max coordinates)
             maxX = std::max(maxX, x);

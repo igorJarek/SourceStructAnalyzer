@@ -11,13 +11,13 @@ ProcessFlow::ProcessFlow(int argc, char *argv[])
     relativeMainFilePath = string(argv[1]);
     absoluteMainFilePath = exeFolderPath + relativeMainFilePath;
 
-    mainFunctionPosition = stoi(argv[2]);
+    mainFunction = string(argv[2]);
 
     Log << "Exe path : " << exePath << Logger::endl;
     Log << "Exe folder path : " << exeFolderPath << Logger::endl;
     Log << "Relative main file path : " << relativeMainFilePath << Logger::endl;
     Log << "Absolute main file path : " << absoluteMainFilePath << Logger::endl;
-    Log << "Main function position : " << mainFunctionPosition << Logger::endl;
+    Log << "Main function : " << mainFunction << Logger::endl;
     Log << Logger::endl;
 }
 
@@ -26,226 +26,155 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
-void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
-{
-    bool loopBreaker = true;
-    list<FunctionBlock>::iterator findedElement;
-
-    for(size_t stageIndex = 0; stageIndex < stages.size() && loopBreaker; ++stageIndex)
-    {
-        list<FunctionBlock>& fbList = stages[stageIndex];
-        for(list<FunctionBlock>::iterator iterator = fbList.begin(); iterator != fbList.end() && loopBreaker; ++iterator)
-        {
-            FunctionBlock& fb = *iterator;
-            if(fb.isContainsPoint(clickPoint))
-            {
-                loopBreaker = false;
-                findedElement = iterator;
-            }
-        }
-    }
-
-    if(!loopBreaker)
-    {
-        FunctionBlock& fb = *findedElement;
-        cout << "FB name : " << fb.getFunctionName() << endl;
-        string functionName = fb.getFuncNameFromPoint(clickPoint);
-        cout << "Click func : " << functionName << endl;
-    }
-}
-
-bool ProcessFlow::isFileIsHeader(const string& extension)
-{
-    if(extension.compare("h") == 0 || extension.compare("hpp") == 0)
-        return true;
-    else
-        return false;
-}
-
-bool ProcessFlow::isFileIsSource(const string& extension)
-{
-    if(extension.compare("c") == 0 || extension.compare("cpp") == 0)
-        return true;
-    else
-        return false;
-}
-
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     Log << "Stage 1 : recursiveFolderSearch -> " << folderPath << Logger::endl;
     WIN32_FIND_DATA findDataStruct;
     string startDir {folderPath + "*.*"};
     HANDLE hFind = FindFirstFile(startDir.c_str(), &findDataStruct);
-    if(hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
-               (strcmp(findDataStruct.cFileName, ".") == 0 || strcmp(findDataStruct.cFileName, "..") == 0))
-                continue;
-
-            if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                string nextDir {folderPath + findDataStruct.cFileName + "\\"};
-                bool ret = recursiveFolderSearch(nextDir);
-                if(!ret)
-                {
-                    Log << "\tError : " << "Unable to open directory (Error code : " << GetLastError() << ") : " << nextDir << Logger::endl;
-                    return false;
-                }
-            }
-            else
-            {
-                string absoluteFilePath {folderPath + findDataStruct.cFileName};
-                string fileWithExtension {findDataStruct.cFileName};
-                string fileWithoutExtension {fileWithExtension.substr(0, fileWithExtension.find_last_of("."))};
-                string fileExtension {fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1)};
-
-                try
-                {
-                    FilesTreeElement& element = filesTree.at(fileWithoutExtension);
-
-                    if(isFileIsSource(fileExtension))
-                    {
-                        if(element.isSourcePathSet())
-                        {
-                           Log << "\tDuplicated source file : " << Logger::endl;
-                           Log << "\t\tSet : " << element.getSourcePath() << Logger::endl;
-                           Log << "\t\tWould be : " << absoluteFilePath << Logger::endl;
-                        }
-                        else
-                            element.setSourcePath(absoluteFilePath);
-                    }
-                    else if(isFileIsHeader(fileExtension))
-                    {
-                        if(element.isHeaderPathSet())
-                        {
-                           Log << "\tDuplicated header file : " << Logger::endl;
-                           Log << "\t\tSet : " << element.getHeaderPath() << Logger::endl;
-                           Log << "\t\tWould be : " << absoluteFilePath << Logger::endl;
-                        }
-                        else
-                            element.setSourcePath(absoluteFilePath);
-                    }
-                }
-                catch(const std::out_of_range& oor)
-                {
-                    FilesTreeElement element;
-
-                    if(isFileIsHeader(fileExtension))
-                        element.setHeaderPath(absoluteFilePath);
-                    else if(isFileIsSource(fileExtension))
-                        element.setSourcePath(absoluteFilePath);
-
-                    filesTree.insert(pair<string, FilesTreeElement>(fileWithoutExtension, element));
-                }
-            }
-        }while(FindNextFile(hFind, &findDataStruct) != 0);
-    }
-    else
+    if(hFind == INVALID_HANDLE_VALUE)
     {
         Log << "\tError : " << "Unable to open directory (Error code : " << GetLastError() << ") : " << folderPath << Logger::endl;
         return false;
     }
 
+    do
+    {
+        if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+           (strcmp(findDataStruct.cFileName, ".") == 0 || strcmp(findDataStruct.cFileName, "..") == 0))
+            continue;
+
+        if(findDataStruct.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            string nextDir {folderPath + findDataStruct.cFileName + "\\"};
+            bool ret = recursiveFolderSearch(nextDir);
+            if(!ret)
+            {
+                Log << "\tError : " << "Unable to open directory (Error code : " << GetLastError() << ") : " << nextDir << Logger::endl;
+                return false;
+            }
+        }
+        else
+        {
+            string absoluteFilePath {folderPath + findDataStruct.cFileName};
+            string fileWithExtension {findDataStruct.cFileName};
+            string fileExtension {fileWithExtension.substr(fileWithExtension.find_last_of(".") + 1)};
+            ++filesCount;
+
+            if(ParsedFile::isFileHeader(fileExtension) || ParsedFile::isFileSource(fileExtension))
+            {
+                Log << "\tParse file : " << absoluteFilePath << Logger::endl;
+                ParsedFilePtr parsedFilePtr = make_shared<ParsedFile>(absoluteFilePath);
+                parsedFilePtr->parse();
+
+                ++parsedFileCount;
+                StringListPtr functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
+
+                Log << "\tAdd function definitions to ParsedFile Tree : " << Logger::endl;
+                for(string functionName : *functionsNameList)
+                {
+                    Log << "\t\t" << functionName << " -> ";
+                    try
+                    {
+                        ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(functionName);
+                        parsedFileListPtr->push_back(parsedFilePtr);
+                        Log << "(" << parsedFileListPtr->size() << ") -> ";
+                        for(ParsedFilePtr pFP : *parsedFileListPtr)
+                            Log << pFP->getAbsoluteFilePath() << ", ";
+                    }
+                    catch(const std::out_of_range& oor)
+                    {
+                        ParsedFileListPtr parsedFileListPtr = make_shared<list<ParsedFilePtr>>();
+                        parsedFileListPtr->push_back(parsedFilePtr);
+                        parsedFileTree.insert(pair<string, ParsedFileListPtr>(functionName, parsedFileListPtr));
+                        Log << "(" << parsedFileListPtr->size() << ") -> ";
+                        for(ParsedFilePtr pFP : *parsedFileListPtr)
+                            Log << pFP->getAbsoluteFilePath() << ", ";
+                    }
+
+                    Log << Logger::endl;
+                }
+            }
+        }
+    }while(FindNextFile(hFind, &findDataStruct) != 0);
+
+    Log << "\t---Parsed file : " << parsedFileCount << " \\ " << filesCount << " ---" << Logger::endl;
+
     FindClose(hFind);
     return true;
 }
 
-bool ProcessFlow::isFunctionName(const string& functionName)
-{
-    if(functionName.compare("if") == 0)
-        return false;
-    else if(functionName.compare("while") == 0)
-        return false;
-    else if(functionName.compare("switch") == 0)
-        return false;
-    else if(functionName.compare("sizeof") == 0)
-        return false;
-
-    return true;
-}
-
-bool ProcessFlow::isFunctionParams(const string& functionParams)
-{
-    // TODO
-    return true;
-}
-
-void ProcessFlow::openMainFile()
+bool ProcessFlow::openMainFile()
 {
     Log << "Stage 2 : openMainFile" << Logger::endl;
-    RowedFile mainFile(relativeMainFilePath);
-    std::list<unsigned int> functionDetectedLines;
+    ParsedFilePtr mainFunctionPtr;
 
-    regex includePattern {"(\\t*| *)#include(\\t*| *)(\\<|\\\")([a-zA-Z0-9_/]+)(\\.h|\\.hpp)(\\>|\\\")"};
-    regex basicFuncDetectionPattern {"(\\w+) *\\("};
-    regex closeBracket(" *\\} *");
-
-    int lineNumber = 0;
-    string currentLine {};
-
-    while(!mainFile.isEOF())
+    try
     {
-        currentLine = mainFile.getNextRow();
-        lineNumber++;
-
-        if(lineNumber < mainFunctionPosition)
+        ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(mainFunction);
+        if(parsedFileListPtr->size() == 0)
         {
-            smatch result;
-            if(regex_search(currentLine, result, includePattern))   // #include
-            {
-                string fileInclude = result[4];
-                size_t fileIncludePos = fileInclude.rfind('/');
-                if(fileIncludePos != string::npos)
-                    fileInclude = fileInclude.substr(fileIncludePos + 1, string::npos);
-
-                Log << "\tInclude detected : " << fileInclude << Logger::endl;
-                includeList.push_back(fileInclude);
-                continue;
-            }
+            Log << "\tSource code doesn't contain " << mainFunction << " function!" << Logger::endl;
+            return false;
         }
-        else if(lineNumber == mainFunctionPosition)
-            Log << "\tMain function (" << lineNumber << ") : " << currentLine << Logger::endl;
-        else if (lineNumber > mainFunctionPosition)
+        else
         {
-            Log << "\tLine : " << lineNumber << Logger::endl;
-
-            if(regex_match(currentLine, closeBracket)) // function end {
-                break;
-
-            smatch result;
-            string::const_iterator searchStart(currentLine.cbegin());
-            while(regex_search(searchStart, currentLine.cend(), result, basicFuncDetectionPattern)) // functions call
+            for(ParsedFilePtr parsedFilePtr : *parsedFileListPtr)
             {
-                string functionName = result[1];
-                string functionParams = result.suffix();
-
-                if(isFunctionName(functionName) && isFunctionParams(functionParams))
+                string filePath {parsedFilePtr->getAbsoluteFilePath()};
+                size_t pos = filePath.find(relativeMainFilePath);
+                if(pos != string::npos)
                 {
-                    map<string, int>::iterator iterator = fuctionCallsMap.find(functionName);
-                    if (iterator == fuctionCallsMap.end())
-                    {
-                        Log << "\t\tFunction detected : " << functionName << Logger::endl;
-                        fuctionCallsMap.emplace(functionName, lineNumber);
-                        functionCallsQueue.push(functionName);
-                        functionDetectedLines.push_back(lineNumber);
-                    }
+                    mainFunctionPtr = parsedFilePtr;
+                    break;
                 }
+            }
 
-                searchStart = result.suffix().first;
+            if(!mainFunctionPtr)
+            {
+                Log << "\tProgram can't found " << mainFunction << " function!" << Logger::endl;
+                return false;
             }
         }
     }
+    catch(const std::out_of_range& oor)
+    {
+        Log << "\tUnable to open main file!" << Logger::endl;
+        return false;
+    }
 
-    list<FunctionBlock> stage0;
-    mainFile.resetFileReadedPtr();
-    FunctionBlock fb {mainFile, "main function", std::pair<int, int>{0, mainFile.getSize()}, functionDetectedLines};
-    stage0.push_back(fb);
-    stages.push_back(stage0);
+    FunctionDefinitionPtr mainFunctionInfo = mainFunctionPtr->getFunctionDefinition(mainFunction);
+    Pos mainFunctionPos = mainFunctionInfo->getLine();
+    FunctionCallListPtr functions = mainFunctionInfo->getFunctionCallList();
+
+    Log << "\tProgram found " << mainFunction << "<"<< mainFunctionPos.first << "; " << mainFunctionPos.second << "> function in : " \
+    << mainFunctionPtr->getAbsoluteFilePath() << Logger::endl;
+
+    for(FunctionCallPtr fCall : *functions)
+    {
+        Log << "\t\tFunctions call in main function : " << fCall->getFunctionName();
+        set<string>::iterator result = fuctionCallsSet.find(fCall->getFunctionName());
+        if(result != fuctionCallsSet.end())
+        {
+            Log << Logger::endl;
+            continue;
+        }
+
+        Log << " (Add to function calls queue)" << Logger::endl;
+        fuctionCallsSet.insert(fCall->getFunctionName());
+        functionCallsQueue.push(fCall->getFunctionName());
+    }
+
+    FunctionBlock mainFunctionBlock(mainFunctionPtr, mainFunction);
+
+    FunctionBlockListPtr functionBlockListPtr = make_shared<list<FunctionBlock>>();
+    functionBlockListPtr->push_back(mainFunctionBlock);
+    functionBlockVector.push_back(functionBlockListPtr);
+
+    return true;
 }
 
-void ProcessFlow::iteratesCallsQueue()
+/*void ProcessFlow::iteratesCallsQueue()
 {
     Log << "Stage 3 : iteratesCallsQueue" << Logger::endl;
     do
@@ -369,20 +298,20 @@ void ProcessFlow::prepareFunctionBlocks()
 
         xPosition += stagesInfo[stageListIndex].x + ST_X_GAP;
     }
-}
+}*/
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)
 {
-    for(list<FunctionBlock> fbList : stages)
+    for(FunctionBlockListPtr fbListPtr : functionBlockVector)
     {
-        for(FunctionBlock& fb : fbList)
+        for(FunctionBlock& fb : *fbListPtr)
         {
             window.draw(fb);
         }
     }
 }
 
-void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
+/*void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
 {
     if(stages.size() > 0)
     {
@@ -400,4 +329,4 @@ void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
             window.setView(currentView);
         }
     }
-}
+}*/

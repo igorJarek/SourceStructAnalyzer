@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
     ProcessFlow processFlow{argc, argv};
     processFlow.recursiveFolderSearch(processFlow.getExeFolderPath());
     processFlow.openMainFile();
-    processFlow.iteratesCallsQueue();
-    processFlow.prepareFunctionBlocks();
-    processFlow.lootAtMainFunctionalBlock(window);
+    //processFlow.iteratesCallsQueue();
+    //processFlow.prepareFunctionBlocks();
+    //processFlow.lootAtMainFunctionalBlock(window);
 
     while (window.isOpen())
     {
@@ -60,10 +60,7 @@ int main(int argc, char *argv[])
                 }
                 else if(event.mouseButton.button == sf::Mouse::Right)
                 {
-                    sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
-                    sf::Vector2f pixel {window.mapPixelToCoords(mouseButtonReleasedPoint)};
-                    cout << "click x : " << pixel.x << " y : " << pixel.y << endl;
-                    processFlow.goToDefinition(pixel);
+
                 }
             }
 
@@ -129,7 +126,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        window.clear(sf::Color::White);
+        window.clear(sf::Color::Black);
         processFlow.drawStages(window);
         window.display();
     }

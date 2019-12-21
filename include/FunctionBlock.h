@@ -3,37 +3,30 @@
 
 #include <SFML/Graphics.hpp>
 #include <list>
-#include <utility>
 
+#include <ParsedFile.h>
 #include <RowedFile.h>
 #include <Resource.h>
+#include <Typedefs.h>
+#include <TextExt.h>
 
 class FunctionBlock : public sf::Drawable, public sf::Transformable
 {
     public:
-        FunctionBlock(RowedFile& rowedFile, const string& functionName, std::pair<int, int> range, std::list<unsigned int>& detectedFuntions);
+        FunctionBlock(ParsedFilePtr parsedFilePtr, const string& functionName);
         ~FunctionBlock();
 
         sf::Vector2u getSize() const { return size; }
-        bool isContainsPoint(sf::Vector2f point);
-        string getFunctionName() const { return searchingFunction.getString(); }
-
-        string getFuncNameFromPoint(sf::Vector2f point);
 
     private:
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-        bool isDetectedFuncListContainsLine(unsigned int line);
-
         sf::Vector2u size;
-        sf::Text titlePath;
-        sf::Text searchingFunction;
+        sf::Text absolutePath;
+        sf::Text name;
 
-        std::list<sf::Text> rows;
+        list<TextExt> rows;
         sf::RectangleShape border;
-
-        std::pair<int, int> fileRange;
-        std::list<unsigned int> funtionLineDetectedList;
 };
 
 #endif // FUNCTIONBLOCK_H

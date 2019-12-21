@@ -3,18 +3,19 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <string>
-#include <map>
 #include <windows.h>
-#include <iostream>
 #include <exception>
+#include <map>
 #include <queue>
 #include <vector>
 #include <list>
 
-#include <FilesTreeElement.h>
+#include <ParsedFile.h>
+#include <FunctionDefinition.h>
 #include <RowedFile.h>
 #include <FunctionBlock.h>
 #include <Logger.h>
+#include <Typedefs.h>
 
 using namespace std;
 
@@ -40,17 +41,15 @@ class ProcessFlow
         ProcessFlow(int argc, char *argv[]);
         ~ProcessFlow();
 
-        string getExePath() const { return exePath; }
-        string getExeFolderPath() const { return exeFolderPath; }
+        string getExePath()         const { return exePath; }
+        string getExeFolderPath()   const { return exeFolderPath; }
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
-
-        void goToDefinition(sf::Vector2f clickPoint);
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
         // stage 2
-        void openMainFile();
+        bool openMainFile();
         // stage 3
         void iteratesCallsQueue();
         // stage 4
@@ -65,19 +64,17 @@ class ProcessFlow
         string exeFolderPath;
         string relativeMainFilePath;
         string absoluteMainFilePath;
-        int mainFunctionPosition;
+        string mainFunction;
 
-        map<string, FilesTreeElement> filesTree;
-        list<string> includeList;
+        uint32_t parsedFileCount {0};
+        uint32_t filesCount {0};
+
+        map<string, ParsedFileListPtr> parsedFileTree;
+
         queue<string> functionCallsQueue;
-        map<string, int> fuctionCallsMap;
-        vector<list<FunctionBlock>>stages;
+        set<string> fuctionCallsSet;
 
-        bool isFileIsHeader(const string& extension);
-        bool isFileIsSource(const string& extension);
-
-        bool isFunctionName(const string& functionName);
-        bool isFunctionParams(const string& functionParams);
+        vector<FunctionBlockListPtr> functionBlockVector;
 };
 
 #endif // PROCESS_H

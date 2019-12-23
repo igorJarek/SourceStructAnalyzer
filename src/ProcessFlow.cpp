@@ -143,9 +143,9 @@ bool ProcessFlow::openMainFile()
         return false;
     }
 
-    FunctionDefinitionPtr mainFunctionInfo = mainFunctionPtr->getFunctionDefinition(mainFunction);
-    Pos mainFunctionPos = mainFunctionInfo->getLine();
-    FunctionCallListPtr functions = mainFunctionInfo->getFunctionCallList();
+    FunctionDefinitionPtr mainFunctionDefinition = mainFunctionPtr->getFunctionDefinition(mainFunction);
+    Pos mainFunctionPos = mainFunctionDefinition->getLine();
+    FunctionCallListPtr functions = mainFunctionDefinition->getFunctionCallList();
 
     Log << "\tProgram found " << mainFunction << "<"<< mainFunctionPos.first << "; " << mainFunctionPos.second << "> function in : " \
     << mainFunctionPtr->getAbsoluteFilePath() << Logger::endl;
@@ -174,7 +174,7 @@ bool ProcessFlow::openMainFile()
     return true;
 }
 
-/*void ProcessFlow::iteratesCallsQueue()
+void ProcessFlow::iteratesCallsQueue()
 {
     Log << "Stage 3 : iteratesCallsQueue" << Logger::endl;
     do
@@ -182,8 +182,8 @@ bool ProcessFlow::openMainFile()
         size_t stageSize = functionCallsQueue.size();
         if(stageSize)
         {
-            list<FunctionBlock> stage;
-            stages.push_back(stage);
+            FunctionBlockListPtr functionBlockListPtr = make_shared<list<FunctionBlock>>();
+            functionBlockVector.push_back(functionBlockListPtr);
         }
 
         string currentFunctionName {};
@@ -194,63 +194,35 @@ bool ProcessFlow::openMainFile()
 
             Log << "\tSearching for function definition : " << currentFunctionName << " .... ";
 
-            // dummy method
-            for(map<string, FilesTreeElement>::iterator it = filesTree.begin(); it != filesTree.end(); ++it)
+            try
             {
-                FilesTreeElement fte = it->second;
-                if(fte.isSourcePathSet())
+                ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(currentFunctionName);
+                if(parsedFileListPtr->size() == 1)
                 {
-                    const string sourcePath = fte.getSourcePath();
-                    RowedFile rowedFile = fte.getSourceFile();
-                    pair<int, int> functionPosition = rowedFile.getFunctionPosition(currentFunctionName);
-                    if(functionPosition.first && functionPosition.second)
+                    ParsedFilePtr parsedFilePtr = parsedFileListPtr->front();
+                    Log << " found in the -> " << parsedFilePtr->getAbsoluteFilePath() << Logger::endl;
+
+                    FunctionDefinitionPtr functionDefinitionPtr = parsedFilePtr->getFunctionDefinition(currentFunctionName);
+                    FunctionCallListPtr functions = functionDefinitionPtr->getFunctionCallList();
+                    for(FunctionCallPtr fCall : *functions)
                     {
-                        Log << " found in the -> " << sourcePath << Logger::endl;
-                        Log << "\t\tSearching for function calls .... " << Logger::endl;
-                        Log << "\t\t\tRange line : <" << functionPosition.first << "; " << functionPosition.second << ">" << Logger::endl;
-
-                        regex basicFuncDetectionPattern {"(\\w+) *\\("};
-
-                        rowedFile.resetFileReadedPtr();
-                        rowedFile.moveFileReaderPtr(functionPosition.first + 1);
-
-                        std::list<unsigned int> functionDetectedLines;
-                        string currentLine {};
-                        smatch result;
-                        for(int foundedFileIndex = functionPosition.first + 1; foundedFileIndex < functionPosition.second; foundedFileIndex++)
+                        string functionCallName = fCall->getFunctionName();
+                        set<string>::iterator result = fuctionCallsSet.find(functionCallName);
+                        if(result == fuctionCallsSet.end())
                         {
-                            currentLine = rowedFile.getNextRow();
-                            string::const_iterator searchStart(currentLine.cbegin());
-                            while(regex_search(searchStart, currentLine.cend(), result, basicFuncDetectionPattern)) // functions call
-                            {
-                                string functionName = result[1];
-                                string functionParams = result.suffix();
-
-                                if(isFunctionName(functionName) && isFunctionParams(functionParams))
-                                {
-                                    map<string, int>::iterator iterator = fuctionCallsMap.find(functionName);
-                                    if (iterator == fuctionCallsMap.end())
-                                    {
-                                        Log << "\t\t\tFunction detected (line -> " << foundedFileIndex << ") : " << functionName << Logger::endl;
-                                        fuctionCallsMap.emplace(functionName, foundedFileIndex);
-                                        functionCallsQueue.push(functionName);
-                                    }
-
-                                    functionDetectedLines.push_back(foundedFileIndex);
-                                }
-
-                                searchStart = result.suffix().first;
-                            }
+                            fuctionCallsSet.insert(functionCallName);
+                            functionCallsQueue.push(functionCallName);
                         }
-
-                        rowedFile.resetFileReadedPtr();
-                        FunctionBlock functionalBlock(rowedFile, currentFunctionName, functionPosition, functionDetectedLines);
-                        list<FunctionBlock>& currentStage = stages.back();
-                        currentStage.push_back(functionalBlock);
-
-                        break;
                     }
                 }
+                else
+                {
+                    Log << " multiple definitions (" << parsedFileListPtr->size() << ")" << Logger::endl;
+                }
+            }
+            catch(const std::out_of_range& oor)
+            {
+                Log << " function definition didn't find" << Logger::endl;
             }
         }
     }while(!functionCallsQueue.empty());
@@ -258,7 +230,7 @@ bool ProcessFlow::openMainFile()
 
 void ProcessFlow::prepareFunctionBlocks()
 {
-    Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
+    /*Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
 
     // get stages info (max height stage, stages width and height)
     uint64_t maxHeightStage {0};
@@ -297,8 +269,8 @@ void ProcessFlow::prepareFunctionBlocks()
         }
 
         xPosition += stagesInfo[stageListIndex].x + ST_X_GAP;
-    }
-}*/
+    }*/
+}
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)
 {

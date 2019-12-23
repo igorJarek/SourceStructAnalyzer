@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     ProcessFlow processFlow{argc, argv};
     processFlow.recursiveFolderSearch(processFlow.getExeFolderPath());
     processFlow.openMainFile();
-    //processFlow.iteratesCallsQueue();
+    processFlow.iteratesCallsQueue();
     //processFlow.prepareFunctionBlocks();
     //processFlow.lootAtMainFunctionalBlock(window);
 

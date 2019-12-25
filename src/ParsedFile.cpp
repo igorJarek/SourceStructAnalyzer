@@ -66,11 +66,11 @@ void ParsedFile::removeUnnecessaryTokens(TokenList& tokenList)
                         Token nextToken = tokenList.peek();
                         if(nextToken.is(Token::Kind::DoubleQuote))
                         {
-                            Log << "Backslash+DoubleQuote. Skip : ["
+                            tokenList.remove(TokenList::RemovePos::AFTER_GET);
+                            tokenList.remove(TokenList::RemovePos::AFTER_PEEK);
+                            Log << "Backslash+DoubleQuote. Delete : ["
                             << token.lexeme()     << "(" << token.line()     << ") , "
                             << nextToken.lexeme() << "(" << nextToken.line() << ")] , ";
-
-                            tokenList.seek(1);
                             continue;
                         }
                     }
@@ -80,6 +80,32 @@ void ParsedFile::removeUnnecessaryTokens(TokenList& tokenList)
                 }while(token.is_not(Token::Kind::DoubleQuote));
 
                 Log << "]" << Logger::endl;
+            }
+            catch(TokenListEndToken endToken) { }
+        }
+        else if(currentToken.is(Token::Kind::Hash))
+        {
+            try
+            {
+                Token includeToken = tokenList.peek();
+                if(includeToken.is(Token::Kind::PreprocessorKeyword) && includeToken.lexeme().compare("include") == 0)
+                {
+                    includeToken = tokenList.get();
+                    Token openIncludeToken = tokenList.peek();
+                    if(openIncludeToken.is(Token::Kind::DoubleQuote))
+                    {
+                        Log << "\t\tInclude DoubleQuote Path. Skip : [";
+                        openIncludeToken = tokenList.get();
+                        Token closeIncludeToken;
+                        do
+                        {
+                            closeIncludeToken = tokenList.get();
+                            Log << closeIncludeToken.lexeme() << "(line:" << closeIncludeToken.line() << ") , ";
+                        }while(closeIncludeToken.is_not(Token::Kind::DoubleQuote));
+
+                        Log << "]" << Logger::endl;
+                    }
+                }
             }
             catch(TokenListEndToken endToken) { }
         }
@@ -164,6 +190,36 @@ void ParsedFile::parse()
                             Log << "\t\t\tFunction call line(" << fCall->getFunctionNameLine() << ")"
                             << " pos(" << fCall->getFunctionNamePos().first << "; " << fCall->getFunctionNamePos().second << ") : "
                             << fCall->getFunctionName() << Logger::endl;
+                    }
+                }
+            }
+            catch(TokenListEndToken endToken) { }
+        }
+        else if(currentToken.is(Token::Kind::Hash))
+        {
+            try
+            {
+                Token includeToken = tokenList.peek();
+                if(includeToken.is(Token::Kind::PreprocessorKeyword) && includeToken.lexeme().compare("include") == 0)
+                {
+                    includeToken = tokenList.get();
+                    Token openIncludeToken = tokenList.peek();
+                    if(openIncludeToken.is_one_of(Token::Kind::LessThan, Token::Kind::DoubleQuote))
+                    {
+                        openIncludeToken = tokenList.get();
+                        Token closeIncludeToken;
+                        string path;
+                        do
+                        {
+                            closeIncludeToken = tokenList.get();
+                            path += closeIncludeToken.lexeme();
+                        }while(closeIncludeToken.is_not(Token::Kind::GreaterThan) &&
+                               closeIncludeToken.is_not(Token::Kind::DoubleQuote));
+
+                        path.pop_back();
+
+                        Log << "\t\tDetect include path line(" << currentToken.line() << ") : " << path << Logger::endl;
+                        includesList.push_back(path);
                     }
                 }
             }

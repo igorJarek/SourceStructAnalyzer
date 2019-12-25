@@ -41,6 +41,7 @@ class ParsedFile
         RowedFilePtr rowedFilePtr;
         map<string, FunctionDefinitionPtr> functionsDefinition;
         StringListPtr functionsDefinitionName;
+        list<string> includesList;
 };
 
 #endif // PARSEDFILE_H

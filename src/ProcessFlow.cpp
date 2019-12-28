@@ -257,16 +257,16 @@ void ProcessFlow::iteratesCallsQueue()
 
 void ProcessFlow::prepareFunctionBlocks()
 {
-    /*Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
+    Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
 
     // get stages info (max height stage, stages width and height)
     uint64_t maxHeightStage {0};
-    sf::Vector2u stagesInfo[stages.size()];
+    sf::Vector2u stagesInfo[functionBlockVector.size()];
 
-    for(size_t stageListIndex {0}; stageListIndex < stages.size(); ++stageListIndex)
+    for(size_t stageListIndex {0}; stageListIndex < functionBlockVector.size(); ++stageListIndex)
     {
-        list<FunctionBlock>& fbList = stages[stageListIndex];
-        for(FunctionBlock& fb : fbList)
+        FunctionBlockListPtr fbList = functionBlockVector[stageListIndex];
+        for(FunctionBlock& fb : *fbList)
         {
             sf::Vector2u fbSize = fb.getSize();
             stagesInfo[stageListIndex].y += fbSize.y + ST_Y_GAP;
@@ -283,12 +283,12 @@ void ProcessFlow::prepareFunctionBlocks()
     // set initial positions
     Log << "\tSet Initial Positions" << Logger::endl;
     uint64_t xPosition {0};
-    for(size_t stageListIndex {0}; stageListIndex < stages.size(); ++stageListIndex)
+    for(size_t stageListIndex {0}; stageListIndex < functionBlockVector.size(); ++stageListIndex)
     {
-        list<FunctionBlock>& fbList = stages[stageListIndex];
+        FunctionBlockListPtr fbList = functionBlockVector[stageListIndex];
 
         uint64_t yPosition = (maxHeightStage - stagesInfo[stageListIndex].y) / 2;
-        for(FunctionBlock& fb : fbList)
+        for(FunctionBlock& fb : *fbList)
         {
             Log << "\t\tFB Pos x : " << xPosition << " y : " << yPosition << Logger::endl;
             fb.setPosition(xPosition, yPosition);
@@ -296,7 +296,7 @@ void ProcessFlow::prepareFunctionBlocks()
         }
 
         xPosition += stagesInfo[stageListIndex].x + ST_X_GAP;
-    }*/
+    }
 }
 
 void ProcessFlow::drawStages(sf::RenderWindow& window)
@@ -310,14 +310,14 @@ void ProcessFlow::drawStages(sf::RenderWindow& window)
     }
 }
 
-/*void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
+void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
 {
-    if(stages.size() > 0)
+    if(functionBlockVector.size() > 0)
     {
-        list<FunctionBlock>& firstStage = stages[0];
-        if(firstStage.size() == 1)
+        FunctionBlockListPtr firstStage = functionBlockVector[0];
+        if(firstStage->size() == 1)
         {
-            FunctionBlock& mainFuntion = firstStage.front();
+            FunctionBlock& mainFuntion = firstStage->front();
 
             sf::Vector2f fbPosition = mainFuntion.getPosition();
             sf::Vector2u fbSize = mainFuntion.getSize();
@@ -328,4 +328,4 @@ void ProcessFlow::drawStages(sf::RenderWindow& window)
             window.setView(currentView);
         }
     }
-}*/
+}

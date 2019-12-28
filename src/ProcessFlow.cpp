@@ -63,36 +63,60 @@ bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 
             if(ParsedFile::isFileHeader(fileExtension) || ParsedFile::isFileSource(fileExtension))
             {
+                Log << "\t------------------------------------" << Logger::endl;
                 Log << "\tParse file : " << absoluteFilePath << Logger::endl;
                 ParsedFilePtr parsedFilePtr = make_shared<ParsedFile>(absoluteFilePath);
                 parsedFilePtr->parse();
 
                 ++parsedFileCount;
-                StringListPtr functionsNameList = parsedFilePtr->getFunctionsDefinitionName();
 
-                Log << "\tAdd function definitions to ParsedFile Tree : " << Logger::endl;
-                for(string functionName : *functionsNameList)
+                Log << "\tAdd file to allFilesTree : " << Logger::endl;
+                try
                 {
-                    Log << "\t\t" << functionName << " -> ";
-                    try
-                    {
-                        ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(functionName);
-                        parsedFileListPtr->push_back(parsedFilePtr);
-                        Log << "(" << parsedFileListPtr->size() << ") -> ";
-                        for(ParsedFilePtr pFP : *parsedFileListPtr)
-                            Log << pFP->getAbsoluteFilePath() << ", ";
-                    }
-                    catch(const std::out_of_range& oor)
-                    {
-                        ParsedFileListPtr parsedFileListPtr = make_shared<list<ParsedFilePtr>>();
-                        parsedFileListPtr->push_back(parsedFilePtr);
-                        parsedFileTree.insert(pair<string, ParsedFileListPtr>(functionName, parsedFileListPtr));
-                        Log << "(" << parsedFileListPtr->size() << ") -> ";
-                        for(ParsedFilePtr pFP : *parsedFileListPtr)
-                            Log << pFP->getAbsoluteFilePath() << ", ";
-                    }
+                    ParsedFileListPtr parsedFileListPtr = allFilesTree.at(fileWithExtension);
+                    parsedFileListPtr->push_back(parsedFilePtr);
+                    Log << "\t\t" << fileWithExtension << " -> (" << parsedFileListPtr->size() << ") -> ";
+                    for(ParsedFilePtr pFP : *parsedFileListPtr)
+                        Log << pFP->getAbsoluteFilePath() << ", ";
+                }
+                catch(const std::out_of_range& oor)
+                {
+                    ParsedFileListPtr parsedFileListPtr = make_shared<list<ParsedFilePtr>>();
+                    parsedFileListPtr->push_back(parsedFilePtr);
+                    allFilesTree.insert(pair<string, ParsedFileListPtr>(fileWithExtension, parsedFileListPtr));
+                    Log << "\t\t" << fileWithExtension << " -> (" << parsedFileListPtr->size() << ") -> ";
+                    for(ParsedFilePtr pFP : *parsedFileListPtr)
+                        Log << pFP->getAbsoluteFilePath() << ", ";
+                }
 
-                    Log << Logger::endl;
+                Log << Logger::endl;
+
+                StringListPtr functionsNameList = parsedFilePtr->getFunctionsDefinitionList();
+                if(ParsedFile::isFileSource(fileExtension))
+                {
+                    Log << "\tAdd function definitions to ParsedFile Tree : " << Logger::endl;
+                    for(string functionName : *functionsNameList)
+                    {
+                        try
+                        {
+                            ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(functionName);
+                            parsedFileListPtr->push_back(parsedFilePtr);
+                            Log << "\t\t" << functionName << " (" << parsedFileListPtr->size() << ") -> ";
+                            for(ParsedFilePtr pFP : *parsedFileListPtr)
+                                Log << pFP->getAbsoluteFilePath() << ", ";
+                        }
+                        catch(const std::out_of_range& oor)
+                        {
+                            ParsedFileListPtr parsedFileListPtr = make_shared<list<ParsedFilePtr>>();
+                            parsedFileListPtr->push_back(parsedFilePtr);
+                            parsedFileTree.insert(pair<string, ParsedFileListPtr>(functionName, parsedFileListPtr));
+                            Log << "\t\t" << functionName << " (" << parsedFileListPtr->size() << ") -> ";
+                            for(ParsedFilePtr pFP : *parsedFileListPtr)
+                                Log << pFP->getAbsoluteFilePath() << ", ";
+                        }
+
+                        Log << Logger::endl;
+                    }
                 }
             }
         }
@@ -162,7 +186,7 @@ bool ProcessFlow::openMainFile()
 
         Log << " (Add to function calls queue)" << Logger::endl;
         fuctionCallsSet.insert(fCall->getFunctionName());
-        functionCallsQueue.push(fCall->getFunctionName());
+        functionCallsQueue.push(CallsQueuePair(fCall->getFunctionName(), mainFunctionPtr));
     }
 
     FunctionBlock mainFunctionBlock(mainFunctionPtr, mainFunction);
@@ -186,23 +210,22 @@ void ProcessFlow::iteratesCallsQueue()
             functionBlockVector.push_back(functionBlockListPtr);
         }
 
-        string currentFunctionName {};
+        CallsQueuePair currentCallsQueuePair;
         for(size_t i = 0; i < stageSize; i++)
         {
-            currentFunctionName = functionCallsQueue.front();
+            currentCallsQueuePair = functionCallsQueue.front();
             functionCallsQueue.pop();
 
-            Log << "\tSearching for function definition : " << currentFunctionName << " .... ";
-
+            Log << "\tSearching for function definition : " << currentCallsQueuePair.first << " (" << currentCallsQueuePair.second->getAbsoluteFilePath() << ") ..." << Logger::endl;
             try
             {
-                ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(currentFunctionName);
+                ParsedFileListPtr parsedFileListPtr = parsedFileTree.at(currentCallsQueuePair.first);
                 if(parsedFileListPtr->size() == 1)
                 {
                     ParsedFilePtr parsedFilePtr = parsedFileListPtr->front();
-                    Log << " found in the -> " << parsedFilePtr->getAbsoluteFilePath() << Logger::endl;
+                    Log << "\t\tFound in the -> " << parsedFilePtr->getAbsoluteFilePath() << Logger::endl;
 
-                    FunctionDefinitionPtr functionDefinitionPtr = parsedFilePtr->getFunctionDefinition(currentFunctionName);
+                    FunctionDefinitionPtr functionDefinitionPtr = parsedFilePtr->getFunctionDefinition(currentCallsQueuePair.first);
                     FunctionCallListPtr functions = functionDefinitionPtr->getFunctionCallList();
                     for(FunctionCallPtr fCall : *functions)
                     {
@@ -211,18 +234,22 @@ void ProcessFlow::iteratesCallsQueue()
                         if(result == fuctionCallsSet.end())
                         {
                             fuctionCallsSet.insert(functionCallName);
-                            functionCallsQueue.push(functionCallName);
+                            functionCallsQueue.push(CallsQueuePair(functionCallName, parsedFilePtr));
                         }
                     }
+
+                    FunctionBlock functionBlock(parsedFilePtr, currentCallsQueuePair.first);
+                    FunctionBlockListPtr lastFunctionBlockListPtr = functionBlockVector.back();
+                    lastFunctionBlockListPtr->push_back(functionBlock);
                 }
                 else
                 {
-                    Log << " multiple definitions (" << parsedFileListPtr->size() << ")" << Logger::endl;
+                    Log << "\t\tMultiple definitions (" << parsedFileListPtr->size() << ")" << Logger::endl;
                 }
             }
             catch(const std::out_of_range& oor)
             {
-                Log << " function definition didn't find" << Logger::endl;
+                Log << "\t\tFunction definition didn't find" << Logger::endl;
             }
         }
     }while(!functionCallsQueue.empty());

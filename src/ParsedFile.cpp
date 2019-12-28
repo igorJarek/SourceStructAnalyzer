@@ -2,10 +2,11 @@
 
 ParsedFile::ParsedFile(const string& fullFilePath)
 {
-    absoluteFilePath = fullFilePath;
-    fileExtension = fullFilePath.substr(fullFilePath.find_last_of(".") + 1); // without dot
-    rowedFilePtr = make_shared<RowedFile>(fullFilePath);
+    absoluteFilePath        = fullFilePath;
+    fileExtension           = fullFilePath.substr(fullFilePath.find_last_of(".") + 1); // without dot
+    rowedFilePtr            = make_shared<RowedFile>(fullFilePath);
     functionsDefinitionName = make_shared<list<string>>();
+    includesList            = make_shared<list<string>>();
 }
 
 ParsedFile::~ParsedFile()
@@ -54,7 +55,7 @@ void ParsedFile::removeUnnecessaryTokens(TokenList& tokenList)
         else if(currentToken.is(Token::Kind::DoubleQuote))
         {
             tokenList.remove(TokenList::RemovePos::AFTER_GET);
-            Log << "\t\tString. Delete : [";
+            Log << "\t\tString. Delete : [" << currentToken.lexeme() << "(line:" << currentToken.line() << "), ";
             try
             {
                 Token token;
@@ -69,13 +70,13 @@ void ParsedFile::removeUnnecessaryTokens(TokenList& tokenList)
                             tokenList.remove(TokenList::RemovePos::AFTER_GET);
                             tokenList.remove(TokenList::RemovePos::AFTER_PEEK);
                             Log << "Backslash+DoubleQuote. Delete : ["
-                            << token.lexeme()     << "(" << token.line()     << ") , "
-                            << nextToken.lexeme() << "(" << nextToken.line() << ")] , ";
+                            << token.lexeme()     << "(" << token.line()     << "), "
+                            << nextToken.lexeme() << "(" << nextToken.line() << ")], ";
                             continue;
                         }
                     }
 
-                    Log << token.lexeme() << "(line:" << token.line() << ") , ";
+                    Log << token.lexeme() << "(line:" << token.line() << "), ";
                     tokenList.remove(TokenList::RemovePos::AFTER_GET);
                 }while(token.is_not(Token::Kind::DoubleQuote));
 
@@ -100,7 +101,7 @@ void ParsedFile::removeUnnecessaryTokens(TokenList& tokenList)
                         do
                         {
                             closeIncludeToken = tokenList.get();
-                            Log << closeIncludeToken.lexeme() << "(line:" << closeIncludeToken.line() << ") , ";
+                            Log << closeIncludeToken.lexeme() << "(line:" << closeIncludeToken.line() << "), ";
                         }while(closeIncludeToken.is_not(Token::Kind::DoubleQuote));
 
                         Log << "]" << Logger::endl;
@@ -119,7 +120,7 @@ void ParsedFile::parse()
     removeUnnecessaryTokens(tokenList);
     tokenList.resetIterator();
 
-    Log << "\tSearching function definitions : " << Logger::endl;
+    Log << "\tSearching function declarations / definitions : " << Logger::endl;
 
     for(Token currentToken = tokenList.get(); currentToken.is_not(Token::Kind::End); currentToken = tokenList.get())
     {
@@ -148,48 +149,62 @@ void ParsedFile::parse()
                             closeBracketCount++;
                     }while(openBracketCount != closeBracketCount);
 
-                    Token openCurlyBracketToken = tokenList.peek(peekIndex++);
-                    Token closeCurlyOrIdentifierToken;
-                    if(openCurlyBracketToken.is(Token::Kind::LeftCurly))
+                    if(isFileHeader(fileExtension))
                     {
-                        tokenList.seek(peekIndex);
-                        peekIndex = 0;
-                        openBracketCount = 1;
-                        closeBracketCount = 0;
-                        FunctionCallListPtr functions = make_shared<list<FunctionCallPtr>>();
-
-                        do
+                        Token semicolonToken = tokenList.peek(peekIndex++);
+                        if(semicolonToken.is(Token::Kind::Semicolon))
                         {
-                            closeCurlyOrIdentifierToken = tokenList.get();
-                            if(closeCurlyOrIdentifierToken.is(Token::Kind::LeftCurly))
-                                openBracketCount++;
-                            else if(closeCurlyOrIdentifierToken.is(Token::Kind::RightCurly))
-                                closeBracketCount++;
-                            else
+                            tokenList.seek(peekIndex);
+                            peekIndex = 0;
+                            functionsDeclaration.insert(currentToken.lexeme());
+                            Log << "\t\tFunction declaration (" << currentToken.line() << "; " << semicolonToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
+                        }
+                    }
+                    else if(isFileSource(fileExtension))
+                    {
+                        Token openCurlyBracketToken = tokenList.peek(peekIndex++);
+                        Token closeCurlyOrIdentifierToken;
+                        if(openCurlyBracketToken.is(Token::Kind::LeftCurly))
+                        {
+                            tokenList.seek(peekIndex);
+                            peekIndex = 0;
+                            openBracketCount = 1;
+                            closeBracketCount = 0;
+                            FunctionCallListPtr functions = make_shared<list<FunctionCallPtr>>();
+
+                            do
                             {
-                                if(closeCurlyOrIdentifierToken.is(Token::Kind::Identifier))
+                                closeCurlyOrIdentifierToken = tokenList.get();
+                                if(closeCurlyOrIdentifierToken.is(Token::Kind::LeftCurly))
+                                    openBracketCount++;
+                                else if(closeCurlyOrIdentifierToken.is(Token::Kind::RightCurly))
+                                    closeBracketCount++;
+                                else
                                 {
-                                    Token token = tokenList.peek();
-                                    if(token.is(Token::Kind::LeftParen))
+                                    if(closeCurlyOrIdentifierToken.is(Token::Kind::Identifier))
                                     {
-                                        FunctionCallPtr fCall = findFunctionCalls(functions, tokenList, closeCurlyOrIdentifierToken);
-                                        functions->push_back(fCall);
+                                        Token token = tokenList.peek();
+                                        if(token.is(Token::Kind::LeftParen))
+                                        {
+                                            FunctionCallPtr fCall = findFunctionCalls(functions, tokenList, closeCurlyOrIdentifierToken);
+                                            functions->push_back(fCall);
+                                        }
                                     }
                                 }
-                            }
-                        }while(openBracketCount != closeBracketCount);
+                            }while(openBracketCount != closeBracketCount);
 
-                        Log << "\t\tFunction definition (" << currentToken.line() << "; " << closeCurlyOrIdentifierToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
+                            Log << "\t\tFunction definition (" << currentToken.line() << "; " << closeCurlyOrIdentifierToken.line() << ") : " << currentToken.lexeme() << Logger::endl;
 
-                        functionsDefinitionName->push_back(currentToken.lexeme());
-                        FunctionDefinitionPtr functionDefinitions = make_shared<FunctionDefinition>(currentToken.lexeme(),
-                                                                                                    Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
-                                                                                                    functions);
-                        functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
-                        for(FunctionCallPtr fCall : *functions)
-                            Log << "\t\t\tFunction call line(" << fCall->getFunctionNameLine() << ")"
-                            << " pos(" << fCall->getFunctionNamePos().first << "; " << fCall->getFunctionNamePos().second << ") : "
-                            << fCall->getFunctionName() << Logger::endl;
+                            functionsDefinitionName->push_back(currentToken.lexeme());
+                            FunctionDefinitionPtr functionDefinitions = make_shared<FunctionDefinition>(currentToken.lexeme(),
+                                                                                                        Pos(currentToken.line(), closeCurlyOrIdentifierToken.line()),
+                                                                                                        functions);
+                            functionsDefinition.emplace(currentToken.lexeme(), functionDefinitions);
+                            for(FunctionCallPtr fCall : *functions)
+                                Log << "\t\t\tFunction call line(" << fCall->getFunctionNameLine() << ")"
+                                << " pos(" << fCall->getFunctionNamePos().first << "; " << fCall->getFunctionNamePos().second << ") : "
+                                << fCall->getFunctionName() << Logger::endl;
+                        }
                     }
                 }
             }
@@ -219,7 +234,7 @@ void ParsedFile::parse()
                         path.pop_back();
 
                         Log << "\t\tDetect include path line(" << currentToken.line() << ") : " << path << Logger::endl;
-                        includesList.push_back(path);
+                        includesList->push_back(path);
                     }
                 }
             }
@@ -269,4 +284,13 @@ FunctionDefinitionPtr ParsedFile::getFunctionDefinition(const string& functionNa
     {
         return nullptr;
     }
+}
+
+bool ParsedFile::isContainsFunctionDeclaration(const string& functionName)
+{
+    set<string>::iterator result = functionsDeclaration.find(functionName);
+    if(result != functionsDeclaration.end())
+        return true;
+    else
+        return false;
 }

@@ -70,8 +70,9 @@ class ProcessFlow
         uint32_t filesCount {0};
 
         map<string, ParsedFileListPtr> parsedFileTree;
+        map<string, ParsedFileListPtr> allFilesTree;
 
-        queue<string> functionCallsQueue;
+        queue<CallsQueuePair> functionCallsQueue;
         set<string> fuctionCallsSet;
 
         vector<FunctionBlockListPtr> functionBlockVector;

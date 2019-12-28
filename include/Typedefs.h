@@ -36,4 +36,6 @@ using TokenListPtr                  = shared_ptr<list<Token>>;
 
 using FunctionBlockListPtr          = shared_ptr<list<FunctionBlock>>;
 
+using CallsQueuePair                = pair<string, ParsedFilePtr>;
+
 #endif // TYPEDEFS_H_INCLUDED

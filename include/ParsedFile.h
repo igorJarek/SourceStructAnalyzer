@@ -26,10 +26,12 @@ class ParsedFile
 
         void parse();
 
-        StringListPtr getFunctionsDefinitionName() { return functionsDefinitionName; }
-        string getAbsoluteFilePath(void) const { return absoluteFilePath; }
-        FunctionDefinitionPtr getFunctionDefinition(const string& functionName);
-        RowedFilePtr getRowedFile(void) { return rowedFilePtr; }
+        StringListPtr           getFunctionsDefinitionList()                                { return functionsDefinitionName; }
+        StringListPtr           getIncludesList()                                           { return includesList; }
+        string                  getAbsoluteFilePath(void) const                             { return absoluteFilePath; }
+        FunctionDefinitionPtr   getFunctionDefinition(const string& functionName);
+        bool                    isContainsFunctionDeclaration(const string& functionName);
+        RowedFilePtr            getRowedFile(void)                                          { return rowedFilePtr; }
 
     private:
         FunctionCallPtr findFunctionCalls(FunctionCallListPtr functionCallList, TokenList& tokenList, Token currentToken);
@@ -41,6 +43,8 @@ class ParsedFile
         RowedFilePtr rowedFilePtr;
         map<string, FunctionDefinitionPtr> functionsDefinition;
         StringListPtr functionsDefinitionName;
+        StringListPtr includesList;
+        set<string> functionsDeclaration;
 };
 
 #endif // PARSEDFILE_H

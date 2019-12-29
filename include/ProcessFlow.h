@@ -17,6 +17,8 @@
 #include <Logger.h>
 #include <Typedefs.h>
 
+#include <iostream>
+
 using namespace std;
 
 class ProcessFlowException
@@ -46,6 +48,9 @@ class ProcessFlow
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
 
+        void goToDefinition(sf::Vector2f clickPoint);
+        string getFuncNameFromPoint(sf::Vector2f point);
+
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
         // stage 2
@@ -70,8 +75,9 @@ class ProcessFlow
         uint32_t filesCount {0};
 
         map<string, ParsedFileListPtr> parsedFileTree;
+        map<string, ParsedFileListPtr> allFilesTree;
 
-        queue<string> functionCallsQueue;
+        queue<CallsQueuePair> functionCallsQueue;
         set<string> fuctionCallsSet;
 
         vector<FunctionBlockListPtr> functionBlockVector;

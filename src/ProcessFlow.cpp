@@ -26,6 +26,34 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
+void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
+{
+    bool loopBreaker = false;
+    list<FunctionBlock>::iterator findedElement;
+
+    for(size_t stageIndex = 0; stageIndex < functionBlockVector.size() && !loopBreaker; ++stageIndex)
+    {
+        FunctionBlockListPtr fbList = functionBlockVector[stageIndex];
+        for(list<FunctionBlock>::iterator iterator = fbList->begin(); iterator != fbList->end() && !loopBreaker; ++iterator)
+        {
+            FunctionBlock& functionBlock = *iterator;
+            if(functionBlock.isContainsPoint(clickPoint))
+            {
+                loopBreaker = true;
+                findedElement = iterator;
+            }
+        }
+    }
+
+    if(loopBreaker)
+    {
+        FunctionBlock& fb = *findedElement;
+        std::cout << "FB name : " << fb.getFunctionName() << std::endl;
+        string functionName = fb.getFunctionNameFromPoint(clickPoint);
+        std::cout << "Click func : " << functionName << std::endl;
+    }
+}
+
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     Log << "Stage 1 : recursiveFolderSearch -> " << folderPath << Logger::endl;

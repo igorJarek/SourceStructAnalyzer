@@ -16,16 +16,30 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         FunctionBlock(ParsedFilePtr parsedFilePtr, const string& functionName);
         ~FunctionBlock();
 
-        sf::Vector2u getSize() const { return size; }
+        sf::Vector2u getSize()                              const   { return size; }
+        bool isContainsPoint(sf::Vector2f point);
+        string getFunctionNameFromPoint(sf::Vector2f point);
+        string getFunctionName()                            const   { return name.getString(); }
 
     private:
+        class FunctionPositionInfo
+        {
+            public:
+                FunctionPositionInfo(const string& functionName, float xStart, float xEnd)
+                    :  m_functionName(functionName), m_xStart(xStart), m_xEnd(xEnd) { }
+
+                string m_functionName;
+                float m_xStart, m_xEnd;
+        };
+
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
         sf::Vector2u size;
         sf::Text absolutePath;
         sf::Text name;
 
-        list<TextExt> rows;
+        list<pair<list<FunctionPositionInfo>, TextExt>> rows;
+
         sf::RectangleShape border;
 };
 

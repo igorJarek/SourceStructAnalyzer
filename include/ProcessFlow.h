@@ -17,6 +17,8 @@
 #include <Logger.h>
 #include <Typedefs.h>
 
+#include <iostream>
+
 using namespace std;
 
 class ProcessFlowException
@@ -45,6 +47,9 @@ class ProcessFlow
         string getExeFolderPath()   const { return exeFolderPath; }
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
+
+        void goToDefinition(sf::Vector2f clickPoint);
+        string getFuncNameFromPoint(sf::Vector2f point);
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);

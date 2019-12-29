@@ -26,15 +26,15 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
-void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
+void ProcessFlow::goToDefinition(sf::RenderWindow& window, double globalZoom, sf::Vector2f clickPoint)
 {
     bool loopBreaker = false;
     list<FunctionBlock>::iterator findedElement;
 
     for(size_t stageIndex = 0; stageIndex < functionBlockVector.size() && !loopBreaker; ++stageIndex)
     {
-        FunctionBlockListPtr fbList = functionBlockVector[stageIndex];
-        for(list<FunctionBlock>::iterator iterator = fbList->begin(); iterator != fbList->end() && !loopBreaker; ++iterator)
+        FunctionBlockListPtr functionBlockListPtr = functionBlockVector[stageIndex];
+        for(list<FunctionBlock>::iterator iterator = functionBlockListPtr->begin(); iterator != functionBlockListPtr->end() && !loopBreaker; ++iterator)
         {
             FunctionBlock& functionBlock = *iterator;
             if(functionBlock.isContainsPoint(clickPoint))
@@ -51,6 +51,29 @@ void ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
         std::cout << "FB name : " << fb.getFunctionName() << std::endl;
         string functionName = fb.getFunctionNameFromPoint(clickPoint);
         std::cout << "Click func : " << functionName << std::endl;
+
+        loopBreaker = false;
+        for(size_t stageIndex = 0; stageIndex < functionBlockVector.size() && !loopBreaker; ++stageIndex)
+        {
+            FunctionBlockListPtr functionBlockListPtr = functionBlockVector[stageIndex];
+            for(FunctionBlock functionBlock : *functionBlockListPtr)
+            {
+                if(functionBlock.getFunctionName().compare(functionName) == 0)
+                {
+                    sf::Vector2f functionBlockPos = functionBlock.getPosition();
+                    sf::Vector2u functionBlockSize = functionBlock.getSize();
+                    sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
+
+                    sf::View currentView{window.getView()};
+                    currentView.setCenter(functionBlockPos.x + (functionBlockSize.x / 2.0) * globalZoom,
+                                          functionBlockPos.y + ((vMode.height / 2.0) - (ST_Y_GAP / 2.0)) * globalZoom);
+                    window.setView(currentView);
+
+                    loopBreaker = true;
+                    break;
+                }
+            }
+        }
     }
 }
 

@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
                 {
                     sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
                     sf::Vector2f pixel {window.mapPixelToCoords(mouseButtonReleasedPoint)};
-                    processFlow.goToDefinition(pixel);
+                    processFlow.goToDefinition(window, globalZoom, pixel);
                 }
             }
 

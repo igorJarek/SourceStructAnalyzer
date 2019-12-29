@@ -23,6 +23,11 @@ int main(int argc, char *argv[])
     int64_t wheelCount {0};
     double globalZoom {1.0};
 
+    bool moveViewToDefinition {false};
+    sf::Vector2f moveView2Pos;
+    sf::Vector2f increaseDelta;
+    uint32_t frameCounter {0};
+
     ProcessFlow processFlow{argc, argv};
     processFlow.recursiveFolderSearch(processFlow.getExeFolderPath());
     processFlow.openMainFile();
@@ -60,9 +65,22 @@ int main(int argc, char *argv[])
                 }
                 else if(event.mouseButton.button == sf::Mouse::Right)
                 {
-                    sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
-                    sf::Vector2f pixel {window.mapPixelToCoords(mouseButtonReleasedPoint)};
-                    processFlow.goToDefinition(window, globalZoom, pixel);
+                    if(!moveViewToDefinition)
+                    {
+                        sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
+                        sf::Vector2f pixel {window.mapPixelToCoords(mouseButtonReleasedPoint)};
+                        moveView2Pos = processFlow.goToDefinition(pixel);
+                        if(moveView2Pos.x != 0 && moveView2Pos.y != 0)
+                        {
+                            sf::View currentView{window.getView()};
+                            sf::Vector2f viewCenterPos = currentView.getCenter();
+                            increaseDelta.x = (moveView2Pos.x - viewCenterPos.x) / 60.0;
+                            increaseDelta.y = (moveView2Pos.y - viewCenterPos.y) / 60.0;
+
+                            frameCounter = 0;
+                            moveViewToDefinition = true;
+                        }
+                    }
                 }
             }
 
@@ -129,6 +147,16 @@ int main(int argc, char *argv[])
         }
 
         window.clear(sf::Color::Black);
+        if(moveViewToDefinition)
+        {
+            if(frameCounter == 60)
+                moveViewToDefinition = false;
+
+            ++frameCounter;
+            sf::View currentView{window.getView()};
+            currentView.move(increaseDelta.x, increaseDelta.y);
+            window.setView(currentView);
+        }
         processFlow.drawStages(window);
         window.display();
     }

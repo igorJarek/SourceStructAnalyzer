@@ -26,8 +26,9 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
-void ProcessFlow::goToDefinition(sf::RenderWindow& window, double globalZoom, sf::Vector2f clickPoint)
+sf::Vector2f ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
 {
+    sf::Vector2f pos;
     bool loopBreaker = false;
     list<FunctionBlock>::iterator findedElement;
 
@@ -64,10 +65,8 @@ void ProcessFlow::goToDefinition(sf::RenderWindow& window, double globalZoom, sf
                     sf::Vector2u functionBlockSize = functionBlock.getSize();
                     sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
 
-                    sf::View currentView{window.getView()};
-                    currentView.setCenter(functionBlockPos.x + (functionBlockSize.x / 2.0) * globalZoom,
-                                          functionBlockPos.y + ((vMode.height / 2.0) - (ST_Y_GAP / 2.0)) * globalZoom);
-                    window.setView(currentView);
+                    pos.x = functionBlockPos.x + (functionBlockSize.x / 2.0);
+                    pos.y = functionBlockPos.y + (vMode.height / 2.0) - (ST_Y_GAP / 2.0);
 
                     loopBreaker = true;
                     break;
@@ -75,6 +74,8 @@ void ProcessFlow::goToDefinition(sf::RenderWindow& window, double globalZoom, sf
             }
         }
     }
+
+    return pos;
 }
 
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)

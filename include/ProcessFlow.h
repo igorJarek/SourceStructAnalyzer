@@ -48,7 +48,7 @@ class ProcessFlow
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
 
-        void goToDefinition(sf::RenderWindow& window, double globalZoom, sf::Vector2f clickPoint);
+        sf::Vector2f goToDefinition(sf::Vector2f clickPoint);
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);

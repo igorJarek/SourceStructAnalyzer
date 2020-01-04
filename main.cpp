@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
         window.clear(sf::Color::Black);
         if(moveViewToDefinition)
         {
-            if(frameCounter == 60)
+            if(frameCounter == 59)
                 moveViewToDefinition = false;
 
             ++frameCounter;

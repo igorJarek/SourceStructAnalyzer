@@ -15,7 +15,7 @@ class FunctionDefinition;
 class ParsedFile;
 class RowedFile;
 class Token;
-
+class ViewController;
 
 using Pos                           = pair<uint32_t, uint32_t>;
 
@@ -37,5 +37,7 @@ using TokenListPtr                  = shared_ptr<list<Token>>;
 using FunctionBlockListPtr          = shared_ptr<list<FunctionBlock>>;
 
 using CallsQueuePair                = pair<string, ParsedFilePtr>;
+
+using ViewControllerPtr             = shared_ptr<ViewController>;
 
 #endif // TYPEDEFS_H_INCLUDED

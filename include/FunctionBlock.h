@@ -17,6 +17,7 @@ class FunctionBlock : public sf::Drawable, public sf::Transformable
         ~FunctionBlock();
 
         sf::Vector2u getSize()                              const   { return size; }
+        void setWidth(float width);
         bool isContainsPoint(sf::Vector2f point);
         string getFunctionNameFromPoint(sf::Vector2f point);
         string getFunctionName()                            const   { return name.getString(); }

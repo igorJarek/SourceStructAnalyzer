@@ -51,6 +51,7 @@ void MainViewController::prepareFunctionBlocks()
         uint64_t yPosition = (maxHeightStage - stagesInfo[stageListIndex].y) / 2;
         for(FunctionBlock& fb : *fbList)
         {
+            fb.setWidth(stagesInfo[stageListIndex].x);
             fb.setPosition(xPosition, yPosition);
             yPosition += fb.getSize().y + ST_Y_GAP;
         }

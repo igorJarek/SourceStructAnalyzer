@@ -99,6 +99,13 @@ FunctionBlock::~FunctionBlock()
     //dtor
 }
 
+void FunctionBlock::setWidth(float width)
+{
+    sf::Vector2f newSize = border.getSize();
+    size.x = newSize.x = width;
+    border.setSize(newSize);
+}
+
 bool FunctionBlock::isContainsPoint(sf::Vector2f point)
 {
     sf::Vector2f topLeftCornerPos       {getPosition()};

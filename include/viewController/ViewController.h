@@ -12,6 +12,8 @@ class ViewController
         ViewController(VideoMode& mode, const string& title, Uint32 style);
         ~ViewController();
 
+        void setIcon(const string& file);
+
         virtual void close(const Event& event) = 0;
         virtual void resize(const Event& event) = 0;
 
@@ -35,6 +37,7 @@ class ViewController
 
     protected:
         RenderWindow m_renderWindow;
+        Image m_iconImage;
 };
 
 #endif // VIEWCONTROLLER_H

@@ -3,7 +3,6 @@
 StackViewController::StackViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
     m_renderWindow.setFramerateLimit(60);
-    m_renderWindow.setVisible(false);
 }
 
 StackViewController::~StackViewController()

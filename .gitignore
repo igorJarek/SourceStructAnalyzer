@@ -46,3 +46,6 @@ bin/
 
 #Test folder
 tests/
+
+#Compiled resource files
+*.res

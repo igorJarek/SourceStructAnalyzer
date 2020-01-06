@@ -3,6 +3,7 @@
 StackViewController::StackViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
     m_renderWindow.setFramerateLimit(60);
+    m_renderWindow.setVisible(false);
 }
 
 StackViewController::~StackViewController()
@@ -72,6 +73,6 @@ void StackViewController::keyboardReleased(const Event& event)
 
 void StackViewController::draw()
 {
-    m_renderWindow.clear(sf::Color::Black);
+    m_renderWindow.clear(sf::Color::Green);
     m_renderWindow.display();
 }

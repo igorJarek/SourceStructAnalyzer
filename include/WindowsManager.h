@@ -3,6 +3,7 @@
 
 #include <viewController/ViewController.h>
 #include <viewController/MainViewController.h>
+#include <viewController/StackViewController.h>
 #include <Typedefs.h>
 #include <map>
 

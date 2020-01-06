@@ -3,6 +3,8 @@
 StackViewController::StackViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
     m_renderWindow.setFramerateLimit(60);
+    sf::WindowHandle windowHandle = m_renderWindow.getSystemHandle();
+    ShowWindow(windowHandle, SW_MINIMIZE);
 }
 
 StackViewController::~StackViewController()

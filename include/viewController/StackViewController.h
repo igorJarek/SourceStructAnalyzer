@@ -2,6 +2,7 @@
 #define STACKVIEWCONTROLLER_H
 
 #include <viewController/ViewController.h>
+#include <windows.h>
 
 class StackViewController : public ViewController
 {

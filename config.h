@@ -18,7 +18,7 @@ const int16_t FB_GAP_BETWEEN_CODE_AND_CODE  {-2};
 const sf::Color FB_DETECTED_FUNCTION_COLOR  {255, 50, 50};
 
 // Display Stages Config
-const int ST_X_GAP {30};
-const int ST_Y_GAP {15};
+const int STAGE_X_GAP {40};
+const int STAGE_Y_GAP {20};
 
 #endif // CONFIG_H_INCLUDED

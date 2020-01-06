@@ -31,12 +31,12 @@ void MainViewController::prepareFunctionBlocks()
         for(FunctionBlock& fb : *fbList)
         {
             sf::Vector2u fbSize = fb.getSize();
-            stagesInfo[stageListIndex].y += fbSize.y + ST_Y_GAP;
+            stagesInfo[stageListIndex].y += fbSize.y + STAGE_Y_GAP;
             if(fbSize.x > stagesInfo[stageListIndex].x)
                 stagesInfo[stageListIndex].x = fbSize.x;
         }
 
-        stagesInfo[stageListIndex].y -= ST_Y_GAP;
+        stagesInfo[stageListIndex].y -= STAGE_Y_GAP;
 
         if(stagesInfo[stageListIndex].y > maxHeightStage)
             maxHeightStage = stagesInfo[stageListIndex].y;
@@ -53,10 +53,10 @@ void MainViewController::prepareFunctionBlocks()
         {
             fb.setWidth(stagesInfo[stageListIndex].x);
             fb.setPosition(xPosition, yPosition);
-            yPosition += fb.getSize().y + ST_Y_GAP;
+            yPosition += fb.getSize().y + STAGE_Y_GAP;
         }
 
-        xPosition += stagesInfo[stageListIndex].x + ST_X_GAP;
+        xPosition += stagesInfo[stageListIndex].x + STAGE_X_GAP;
     }
 }
 
@@ -129,7 +129,7 @@ sf::Vector2f MainViewController::goToDefinition(sf::Vector2f clickPoint)
                     sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
 
                     pos.x = functionBlockPos.x + (functionBlockSize.x / 2.0);
-                    pos.y = functionBlockPos.y + (vMode.height / 2.0) - (ST_Y_GAP / 2.0);
+                    pos.y = functionBlockPos.y + (vMode.height / 2.0) - (STAGE_Y_GAP / 2.0);
 
                     loopBreaker = true;
                     break;

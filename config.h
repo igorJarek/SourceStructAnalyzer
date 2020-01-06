@@ -5,7 +5,7 @@
 #include <SFML/Graphics/Color.hpp>
 
 const std::string FONT_PATH = "courier-new.ttf";
-const float ZOOM_STEP {0.15f}; // 15 % zoom per "one click :)"
+const float ZOOM_STEP {0.15f}; // 15 % zoom per "one revolution :)"
 
 // Functional Block Config
 const uint16_t FB_CHAR_SIZE                 {11};

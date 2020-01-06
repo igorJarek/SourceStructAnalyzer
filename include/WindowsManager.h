@@ -4,6 +4,7 @@
 #include <viewController/ViewController.h>
 #include <viewController/MainViewController.h>
 #include <viewController/StackViewController.h>
+#include <ViewController/ConsoleViewController.h>
 #include <Typedefs.h>
 #include <map>
 

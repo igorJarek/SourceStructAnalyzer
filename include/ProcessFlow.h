@@ -47,6 +47,9 @@ class ProcessFlow
         void addMainViewController(MainViewControllerPtr mainViewControllerPtr);
         void notifyMainViewController(vector<FunctionBlockListPtr>& functionBlockVector);
 
+        void analyze();
+
+    private:
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
         // stage 2
@@ -54,7 +57,6 @@ class ProcessFlow
         // stage 3
         void iteratesCallsQueue();
 
-    private:
         MainViewControllerPtr m_mainViewControllerPtr;
 
         string exePath;

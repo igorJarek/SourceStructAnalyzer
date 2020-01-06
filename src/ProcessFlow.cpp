@@ -36,6 +36,13 @@ void ProcessFlow::notifyMainViewController(vector<FunctionBlockListPtr>& functio
     m_mainViewControllerPtr->update(functionBlockVector);
 }
 
+void ProcessFlow::analyze()
+{
+    recursiveFolderSearch(getExeFolderPath());
+    openMainFile();
+    iteratesCallsQueue();
+}
+
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
 {
     Log << "Stage 1 : recursiveFolderSearch -> " << folderPath << Logger::endl;

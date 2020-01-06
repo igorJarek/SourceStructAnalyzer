@@ -13,9 +13,7 @@ int main(int argc, char *argv[])
 
     ProcessFlow processFlow{argc, argv};
     processFlow.addMainViewController(mainViewControllerPtr);
-    processFlow.recursiveFolderSearch(processFlow.getExeFolderPath());
-    processFlow.openMainFile();
-    processFlow.iteratesCallsQueue();
+    processFlow.analyze();
 
     WindowsManager::get().pool();
 

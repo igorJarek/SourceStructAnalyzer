@@ -1,14 +1,12 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include <SFML/System/Vector2.hpp>
-#include <string>
+#include <viewController/MainViewController.h>
 #include <windows.h>
 #include <exception>
 #include <map>
 #include <queue>
 #include <vector>
-#include <list>
 
 #include <ParsedFile.h>
 #include <FunctionDefinition.h>
@@ -16,8 +14,6 @@
 #include <FunctionBlock.h>
 #include <Logger.h>
 #include <Typedefs.h>
-
-#include <iostream>
 
 using namespace std;
 
@@ -48,7 +44,8 @@ class ProcessFlow
         string getRelMainFilePath() const { return relativeMainFilePath; }
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
 
-        sf::Vector2f goToDefinition(sf::Vector2f clickPoint);
+        void addMainViewController(MainViewControllerPtr mainViewControllerPtr);
+        void notifyMainViewController(vector<FunctionBlockListPtr>& functionBlockVector);
 
         // stage 1
         bool recursiveFolderSearch(const string& folderPath);
@@ -56,14 +53,10 @@ class ProcessFlow
         bool openMainFile();
         // stage 3
         void iteratesCallsQueue();
-        // stage 4
-        void prepareFunctionBlocks();
-        // stage 5
-        void drawStages(sf::RenderWindow& window);
-        // stage 6
-        void lootAtMainFunctionalBlock(sf::RenderWindow& window);
 
     private:
+        MainViewControllerPtr m_mainViewControllerPtr;
+
         string exePath;
         string exeFolderPath;
         string relativeMainFilePath;

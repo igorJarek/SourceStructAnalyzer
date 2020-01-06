@@ -26,56 +26,14 @@ ProcessFlow::~ProcessFlow()
     //dtor
 }
 
-sf::Vector2f ProcessFlow::goToDefinition(sf::Vector2f clickPoint)
+void ProcessFlow::addMainViewController(MainViewControllerPtr mainViewControllerPtr)
 {
-    sf::Vector2f pos;
-    bool loopBreaker = false;
-    list<FunctionBlock>::iterator findedElement;
+    m_mainViewControllerPtr = mainViewControllerPtr;
+}
 
-    for(size_t stageIndex = 0; stageIndex < functionBlockVector.size() && !loopBreaker; ++stageIndex)
-    {
-        FunctionBlockListPtr functionBlockListPtr = functionBlockVector[stageIndex];
-        for(list<FunctionBlock>::iterator iterator = functionBlockListPtr->begin(); iterator != functionBlockListPtr->end() && !loopBreaker; ++iterator)
-        {
-            FunctionBlock& functionBlock = *iterator;
-            if(functionBlock.isContainsPoint(clickPoint))
-            {
-                loopBreaker = true;
-                findedElement = iterator;
-            }
-        }
-    }
-
-    if(loopBreaker)
-    {
-        FunctionBlock& fb = *findedElement;
-        std::cout << "FB name : " << fb.getFunctionName() << std::endl;
-        string functionName = fb.getFunctionNameFromPoint(clickPoint);
-        std::cout << "Click func : " << functionName << std::endl;
-
-        loopBreaker = false;
-        for(size_t stageIndex = 0; stageIndex < functionBlockVector.size() && !loopBreaker; ++stageIndex)
-        {
-            FunctionBlockListPtr functionBlockListPtr = functionBlockVector[stageIndex];
-            for(FunctionBlock functionBlock : *functionBlockListPtr)
-            {
-                if(functionBlock.getFunctionName().compare(functionName) == 0)
-                {
-                    sf::Vector2f functionBlockPos = functionBlock.getPosition();
-                    sf::Vector2u functionBlockSize = functionBlock.getSize();
-                    sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
-
-                    pos.x = functionBlockPos.x + (functionBlockSize.x / 2.0);
-                    pos.y = functionBlockPos.y + (vMode.height / 2.0) - (ST_Y_GAP / 2.0);
-
-                    loopBreaker = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    return pos;
+void ProcessFlow::notifyMainViewController(vector<FunctionBlockListPtr>& functionBlockVector)
+{
+    m_mainViewControllerPtr->update(functionBlockVector);
 }
 
 bool ProcessFlow::recursiveFolderSearch(const string& folderPath)
@@ -305,79 +263,6 @@ void ProcessFlow::iteratesCallsQueue()
             }
         }
     }while(!functionCallsQueue.empty());
-}
 
-void ProcessFlow::prepareFunctionBlocks()
-{
-    Log << "Stage 4 : prepareFunctionBlocks" << Logger::endl;
-
-    // get stages info (max height stage, stages width and height)
-    uint64_t maxHeightStage {0};
-    sf::Vector2u stagesInfo[functionBlockVector.size()];
-
-    for(size_t stageListIndex {0}; stageListIndex < functionBlockVector.size(); ++stageListIndex)
-    {
-        FunctionBlockListPtr fbList = functionBlockVector[stageListIndex];
-        for(FunctionBlock& fb : *fbList)
-        {
-            sf::Vector2u fbSize = fb.getSize();
-            stagesInfo[stageListIndex].y += fbSize.y + ST_Y_GAP;
-            if(fbSize.x > stagesInfo[stageListIndex].x)
-                stagesInfo[stageListIndex].x = fbSize.x;
-        }
-
-        stagesInfo[stageListIndex].y -= ST_Y_GAP;
-
-        if(stagesInfo[stageListIndex].y > maxHeightStage)
-            maxHeightStage = stagesInfo[stageListIndex].y;
-    }
-
-    // set initial positions
-    Log << "\tSet Initial Positions" << Logger::endl;
-    uint64_t xPosition {0};
-    for(size_t stageListIndex {0}; stageListIndex < functionBlockVector.size(); ++stageListIndex)
-    {
-        FunctionBlockListPtr fbList = functionBlockVector[stageListIndex];
-
-        uint64_t yPosition = (maxHeightStage - stagesInfo[stageListIndex].y) / 2;
-        for(FunctionBlock& fb : *fbList)
-        {
-            Log << "\t\tFB Pos x : " << xPosition << " y : " << yPosition << Logger::endl;
-            fb.setPosition(xPosition, yPosition);
-            yPosition += fb.getSize().y + ST_Y_GAP;
-        }
-
-        xPosition += stagesInfo[stageListIndex].x + ST_X_GAP;
-    }
-}
-
-void ProcessFlow::drawStages(sf::RenderWindow& window)
-{
-    for(FunctionBlockListPtr fbListPtr : functionBlockVector)
-    {
-        for(FunctionBlock& fb : *fbListPtr)
-        {
-            window.draw(fb);
-        }
-    }
-}
-
-void ProcessFlow::lootAtMainFunctionalBlock(sf::RenderWindow& window)
-{
-    if(functionBlockVector.size() > 0)
-    {
-        FunctionBlockListPtr firstStage = functionBlockVector[0];
-        if(firstStage->size() == 1)
-        {
-            FunctionBlock& mainFuntion = firstStage->front();
-
-            sf::Vector2f fbPosition = mainFuntion.getPosition();
-            sf::Vector2u fbSize = mainFuntion.getSize();
-            sf::Vector2u windowSize = window.getSize();
-
-            sf::View currentView{window.getView()};
-            currentView.setCenter((windowSize.x - fbSize.x) / 2, fbPosition.y + 30);
-            window.setView(currentView);
-        }
-    }
+    notifyMainViewController(functionBlockVector);
 }

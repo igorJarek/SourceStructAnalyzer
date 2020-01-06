@@ -60,3 +60,18 @@ void StackViewController::mouseMove(const Event& event)
 
 }
 
+void StackViewController::keyboardPressed(const Event& event)
+{
+
+}
+
+void StackViewController::keyboardReleased(const Event& event)
+{
+
+}
+
+void StackViewController::draw()
+{
+    m_renderWindow.clear(sf::Color::Black);
+    m_renderWindow.display();
+}

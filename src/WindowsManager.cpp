@@ -10,9 +10,9 @@ WindowsManager::~WindowsManager()
 
 }
 
-void WindowsManager::addMainViewController(ViewControllerPtr viewControllerPtr)
+void WindowsManager::addMainViewController(MainViewControllerPtr mainViewControllerPtr)
 {
-    m_mainViewControllerPtr = viewControllerPtr;
+    m_mainViewControllerPtr = mainViewControllerPtr;
 }
 
 void WindowsManager::addViewController(ViewControllerPtr viewControllerPtr, const string& name)
@@ -97,14 +97,16 @@ void WindowsManager::pool()
                         viewControllerPtr->mouseMove(childEvent);
                     else if(childEvent.type == sf::Event::MouseWheelScrolled)
                         viewControllerPtr->mouseWheel(childEvent);
+                    else if(childEvent.type == sf::Event::KeyPressed)
+                        viewControllerPtr->keyboardPressed(childEvent);
+                    else if(childEvent.type == sf::Event::KeyReleased)
+                        viewControllerPtr->keyboardReleased(childEvent);
                 }
 
-                renderWindow.clear(sf::Color::Black);
-                renderWindow.display();
+                viewControllerPtr->draw();
             }
         }
 
-        mainWindow.clear(sf::Color::Black);
-        mainWindow.display();
+        m_mainViewControllerPtr->draw();
     }
 }

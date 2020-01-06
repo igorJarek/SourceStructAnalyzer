@@ -26,6 +26,11 @@ class ViewController
         virtual void mouseWheel(const Event& event) = 0;
         virtual void mouseMove(const Event& event) = 0;
 
+        virtual void keyboardPressed(const Event& event) = 0;
+        virtual void keyboardReleased(const Event& event) = 0;
+
+        virtual void draw() = 0;
+
         RenderWindow& getWindow() { return m_renderWindow; }
 
     protected:

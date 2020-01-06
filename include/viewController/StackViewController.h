@@ -23,6 +23,11 @@ class StackViewController : public ViewController
         virtual void mouseWheel(const Event& event);
         virtual void mouseMove(const Event& event);
 
+        virtual void keyboardPressed(const Event& event);
+        virtual void keyboardReleased(const Event& event);
+
+        virtual void draw();
+
     private:
 };
 

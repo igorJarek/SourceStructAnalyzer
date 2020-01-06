@@ -2,6 +2,7 @@
 #define WINDOWSMANAGER_H
 
 #include <viewController/ViewController.h>
+#include <viewController/MainViewController.h>
 #include <Typedefs.h>
 #include <map>
 
@@ -22,13 +23,13 @@ class WindowsManager
             return instance;
         }
 
-        void addMainViewController(ViewControllerPtr viewControllerPtr);
+        void addMainViewController(MainViewControllerPtr mainViewControllerPtr);
         void addViewController(ViewControllerPtr viewControllerPtr, const string& name);
 
         void pool();
 
     private:
-        ViewControllerPtr m_mainViewControllerPtr;
+        MainViewControllerPtr m_mainViewControllerPtr;
         map<string, ViewControllerPtr> m_viewControllers;
 };
 

@@ -2,6 +2,7 @@
 #define MAINVIEWCONTROLLER_H
 
 #include <SFML/Graphics.hpp>
+#include <WindowsManager.h>
 #include <viewController/ViewController.h>
 #include <Typedefs.h>
 #include <FunctionBlock.h>

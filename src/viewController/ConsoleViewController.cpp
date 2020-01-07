@@ -14,7 +14,7 @@ ConsoleViewController::~ConsoleViewController()
 
 void ConsoleViewController::close(const Event& event)
 {
-    m_renderWindow.close();
+
 }
 
 void ConsoleViewController::resize(const Event& event)
@@ -74,6 +74,6 @@ void ConsoleViewController::keyboardReleased(const Event& event)
 
 void ConsoleViewController::draw()
 {
-    m_renderWindow.clear(sf::Color::Blue);
+    m_renderWindow.clear(sf::Color(50, 50, 50));
     m_renderWindow.display();
 }

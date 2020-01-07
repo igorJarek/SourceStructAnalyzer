@@ -14,7 +14,7 @@ StackViewController::~StackViewController()
 
 void StackViewController::close(const Event& event)
 {
-    m_renderWindow.close();
+
 }
 
 void StackViewController::resize(const Event& event)
@@ -74,6 +74,6 @@ void StackViewController::keyboardReleased(const Event& event)
 
 void StackViewController::draw()
 {
-    m_renderWindow.clear(sf::Color::Green);
+    m_renderWindow.clear(sf::Color(50, 50, 50));
     m_renderWindow.display();
 }

@@ -245,19 +245,42 @@ void MainViewController::mouseMove(const Event& event)
 
 void MainViewController::keyboardPressed(const Event& event)
 {
-    sf::View currentView = m_renderWindow.getView();
-    sf::Vector2f centerPoint = currentView.getCenter();
+    if(event.key.code == sf::Keyboard::F1)
+    {
+        ViewControllerPtr consoleViewController = WindowsManager::get().getViewController("console");
+        if(consoleViewController)
+        {
+            bool windowVisibility = consoleViewController->isVisible();
+            consoleViewController->setVisibility(!windowVisibility);
+            m_renderWindow.requestFocus();
+        }
+    }
+    else if(event.key.code == sf::Keyboard::F2)
+    {
+        ViewControllerPtr queueViewController = WindowsManager::get().getViewController("queue");
+        if(queueViewController)
+        {
+            bool windowVisibility = queueViewController->isVisible();
+            queueViewController->setVisibility(!windowVisibility);
+            m_renderWindow.requestFocus();
+        }
+    }
+    else
+    {
+        sf::View currentView = m_renderWindow.getView();
+        sf::Vector2f centerPoint = currentView.getCenter();
 
-    if(event.key.code == sf::Keyboard::Up)
-        currentView.setCenter(centerPoint.x, centerPoint.y - 10.f);
-    else if(event.key.code == sf::Keyboard::Right)
-        currentView.setCenter(centerPoint.x - 10.f, centerPoint.y);
-    else if(event.key.code == sf::Keyboard::Down)
-        currentView.setCenter(centerPoint.x, centerPoint.y+10.f);
-    else if(event.key.code == sf::Keyboard::Left)
-        currentView.setCenter(centerPoint.x + 10.f, centerPoint.y);
+        if(event.key.code == sf::Keyboard::Up)
+            currentView.setCenter(centerPoint.x, centerPoint.y - 10.f);
+        else if(event.key.code == sf::Keyboard::Right)
+            currentView.setCenter(centerPoint.x - 10.f, centerPoint.y);
+        else if(event.key.code == sf::Keyboard::Down)
+            currentView.setCenter(centerPoint.x, centerPoint.y+10.f);
+        else if(event.key.code == sf::Keyboard::Left)
+            currentView.setCenter(centerPoint.x + 10.f, centerPoint.y);
 
-    m_renderWindow.setView(currentView);
+        m_renderWindow.setView(currentView);
+    }
 }
 
 void MainViewController::keyboardReleased(const Event& event)

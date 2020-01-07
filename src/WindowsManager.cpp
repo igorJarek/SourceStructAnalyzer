@@ -20,6 +20,15 @@ void WindowsManager::addViewController(ViewControllerPtr viewControllerPtr, cons
     m_viewControllers.insert(pair<string, ViewControllerPtr>(name, viewControllerPtr));
 }
 
+ViewControllerPtr WindowsManager::getViewController(const string& name)
+{
+    map<string, ViewControllerPtr>::iterator iterator = m_viewControllers.find(name);
+    if(iterator != m_viewControllers.end())
+        return iterator->second;
+    else
+        return nullptr;
+}
+
 void WindowsManager::pool()
 {
     RenderWindow& mainWindow = m_mainViewControllerPtr->getWindow();
@@ -56,6 +65,10 @@ void WindowsManager::pool()
                 m_mainViewControllerPtr->mouseMove(event);
             else if(event.type == sf::Event::MouseWheelScrolled)
                 m_mainViewControllerPtr->mouseWheel(event);
+            else if(event.type == sf::Event::KeyPressed)
+                m_mainViewControllerPtr->keyboardPressed(event);
+            else if(event.type == sf::Event::KeyReleased)
+                m_mainViewControllerPtr->keyboardReleased(event);
         }
 
         for(pair<string, ViewControllerPtr> viewController : m_viewControllers)

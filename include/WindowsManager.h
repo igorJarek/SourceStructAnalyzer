@@ -28,6 +28,8 @@ class WindowsManager
         void addMainViewController(MainViewControllerPtr mainViewControllerPtr);
         void addViewController(ViewControllerPtr viewControllerPtr, const string& name);
 
+        ViewControllerPtr getViewController(const string& name);
+
         void pool();
 
     private:

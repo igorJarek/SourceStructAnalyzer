@@ -19,3 +19,9 @@ void ViewController::setIcon(const string& file)
         m_renderWindow.setIcon(iconSize.x, iconSize.y, pixels);
     }
 }
+
+void ViewController::setVisibility(bool visibility)
+{
+    m_visibility = visibility;
+    m_renderWindow.setVisible(m_visibility);
+}

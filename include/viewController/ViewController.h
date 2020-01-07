@@ -12,6 +12,9 @@ class ViewController
         ViewController(VideoMode& mode, const string& title, Uint32 style);
         ~ViewController();
 
+        bool isVisible() const { return m_visibility; }
+        void setVisibility(bool visibility);
+
         void setIcon(const string& file);
 
         virtual void close(const Event& event) = 0;
@@ -38,6 +41,8 @@ class ViewController
     protected:
         RenderWindow m_renderWindow;
         Image m_iconImage;
+
+        bool m_visibility {true};
 };
 
 #endif // VIEWCONTROLLER_H

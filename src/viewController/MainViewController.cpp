@@ -91,54 +91,35 @@ void MainViewController::lootAtMainFunctionalBlock()
     }
 }
 
-sf::Vector2f MainViewController::goToDefinition(sf::Vector2f clickPoint)
+pair<size_t, FunctionBlock*> MainViewController::getFunctionBlockFromPoint(sf::Vector2f clickPoint)
 {
-    sf::Vector2f pos;
-    bool loopBreaker = false;
-    list<FunctionBlock>::iterator findedElement;
-
-    for(size_t stageIndex = 0; stageIndex < m_functionBlockVector.size() && !loopBreaker; ++stageIndex)
+    for(size_t stageIndex = 0; stageIndex < m_functionBlockVector.size(); ++stageIndex)
     {
         FunctionBlockListPtr functionBlockListPtr = m_functionBlockVector[stageIndex];
-        for(list<FunctionBlock>::iterator iterator = functionBlockListPtr->begin(); iterator != functionBlockListPtr->end() && !loopBreaker; ++iterator)
+        for(list<FunctionBlock>::iterator iterator = functionBlockListPtr->begin(); iterator != functionBlockListPtr->end(); ++iterator)
         {
             FunctionBlock& functionBlock = *iterator;
             if(functionBlock.isContainsPoint(clickPoint))
-            {
-                loopBreaker = true;
-                findedElement = iterator;
-            }
+                return pair<uint32_t, FunctionBlock*>(stageIndex, &functionBlock);
         }
     }
 
-    if(loopBreaker)
+    return pair<uint32_t, FunctionBlock*>(0, nullptr);
+}
+
+pair<size_t, FunctionBlock*> MainViewController::getFunctionBlockByName(const string& functionName)
+{
+    for(size_t stageIndex = 0; stageIndex < m_functionBlockVector.size(); ++stageIndex)
     {
-        FunctionBlock& fb = *findedElement;
-        string functionName = fb.getFunctionNameFromPoint(clickPoint);
-
-        loopBreaker = false;
-        for(size_t stageIndex = 0; stageIndex < m_functionBlockVector.size() && !loopBreaker; ++stageIndex)
+        FunctionBlockListPtr functionBlockListPtr = m_functionBlockVector[stageIndex];
+        for(FunctionBlock& functionBlock : *functionBlockListPtr)
         {
-            FunctionBlockListPtr functionBlockListPtr = m_functionBlockVector[stageIndex];
-            for(FunctionBlock functionBlock : *functionBlockListPtr)
-            {
-                if(functionBlock.getFunctionName().compare(functionName) == 0)
-                {
-                    sf::Vector2f functionBlockPos = functionBlock.getPosition();
-                    sf::Vector2u functionBlockSize = functionBlock.getSize();
-                    sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
-
-                    pos.x = functionBlockPos.x + (functionBlockSize.x / 2.0);
-                    pos.y = functionBlockPos.y + (vMode.height / 2.0) - (STAGE_Y_GAP / 2.0);
-
-                    loopBreaker = true;
-                    break;
-                }
-            }
+            if(functionBlock.getFunctionName().compare(functionName) == 0)
+                return pair<size_t, FunctionBlock*>(stageIndex, &functionBlock);
         }
     }
 
-    return pos;
+    return pair<size_t, FunctionBlock*>(0, nullptr);
 }
 
 void MainViewController::close(const Event& event)
@@ -148,7 +129,7 @@ void MainViewController::close(const Event& event)
 
 void MainViewController::resize(const Event& event)
 {
-    sf::View currentView{m_renderWindow.getView()};
+    sf::View currentView {m_renderWindow.getView()};
     currentView.setSize(event.size.width, event.size.height);
     const sf::Vector2i currentWindowSize{resizeOldWindowSize.x - event.size.width, resizeOldWindowSize.y - event.size.height};
     currentView.move(-currentWindowSize.x, -currentWindowSize.y);
@@ -172,22 +153,7 @@ void MainViewController::midleButtonPressed(const Event& event)
 
 void MainViewController::rightButtonPressed(const Event& event)
 {
-    if(!moveViewToDefinition)
-    {
-        sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
-        sf::Vector2f pixel {m_renderWindow.mapPixelToCoords(mouseButtonReleasedPoint)};
-        moveView2Pos = goToDefinition(pixel);
-        if(moveView2Pos.x != 0 && moveView2Pos.y != 0)
-        {
-            sf::View currentView{m_renderWindow.getView()};
-            sf::Vector2f viewCenterPos = currentView.getCenter();
-            increaseDelta.x = (moveView2Pos.x - viewCenterPos.x) / 60.0;
-            increaseDelta.y = (moveView2Pos.y - viewCenterPos.y) / 60.0;
 
-            frameCounter = 0;
-            moveViewToDefinition = true;
-        }
-    }
 }
 
 void MainViewController::leftButtonReleased(const Event& event)
@@ -202,7 +168,44 @@ void MainViewController::midleButtonReleased(const Event& event)
 
 void MainViewController::rightButtonReleased(const Event& event)
 {
+    if(!moveViewToDefinition)
+    {
+        sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
+        sf::Vector2f pixel {m_renderWindow.mapPixelToCoords(mouseButtonReleasedPoint)};
+        pair<size_t, FunctionBlock*> clickedFunctionBlockInfo = getFunctionBlockFromPoint(pixel);
+        size_t clickedFunctionBlockStage = clickedFunctionBlockInfo.first;
+        FunctionBlock* clickedFunctionBlock = clickedFunctionBlockInfo.second;
 
+        if(clickedFunctionBlock)
+        {
+            string functionBlockName = clickedFunctionBlock->getFunctionName();
+            string clickedFunctionName = clickedFunctionBlock->getFunctionNameFromPoint(pixel);
+            pair<size_t, FunctionBlock*> definitionFunctionBlockInfo = getFunctionBlockByName(clickedFunctionName);
+            size_t definitionFunctionBlockStage = definitionFunctionBlockInfo.first;
+            FunctionBlock* definitionFunctionBlock = definitionFunctionBlockInfo.second;
+            if(definitionFunctionBlock)
+            {
+                sf::Vector2f functionBlockPos = definitionFunctionBlock->getPosition();
+                sf::Vector2u functionBlockSize = definitionFunctionBlock->getSize();
+                sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
+
+                moveView2Pos.x = functionBlockPos.x + (functionBlockSize.x / 2.0);
+                moveView2Pos.y = functionBlockPos.y + (vMode.height / 2.0) - (STAGE_Y_GAP / 2.0);
+
+                sf::View currentView {m_renderWindow.getView()};
+                sf::Vector2f viewCenterPos = currentView.getCenter();
+                increaseDelta.x = (moveView2Pos.x - viewCenterPos.x) / 60.0;
+                increaseDelta.y = (moveView2Pos.y - viewCenterPos.y) / 60.0;
+
+                frameCounter = 0;
+                moveViewToDefinition = true;
+
+                StackViewController* stackViewControllerPtr = dynamic_cast<StackViewController*>(WindowsManager::get().getViewController("queue").get());
+                if(stackViewControllerPtr)
+                    stackViewControllerPtr->addTextData(functionBlockName, clickedFunctionBlockStage + 1, clickedFunctionName, definitionFunctionBlockStage + 1);
+            }
+        }
+    }
 }
 
 void MainViewController::mouseWheel(const Event& event)

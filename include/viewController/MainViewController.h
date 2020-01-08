@@ -39,7 +39,8 @@ class MainViewController : public ViewController
         void drawStages();
         void lootAtMainFunctionalBlock();
 
-        sf::Vector2f goToDefinition(sf::Vector2f clickPoint);
+        pair<size_t, FunctionBlock*> getFunctionBlockFromPoint(sf::Vector2f clickPoint);
+        pair<size_t, FunctionBlock*> getFunctionBlockByName(const string& functionName);
 
         vector<FunctionBlockListPtr> m_functionBlockVector;
 

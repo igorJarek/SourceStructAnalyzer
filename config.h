@@ -16,9 +16,17 @@ const uint16_t FB_GAP_BETWEEN_NAME_AND_CODE {16};
 const int16_t FB_GAP_BETWEEN_CODE_AND_CODE  {-2};
 
 const sf::Color FB_DETECTED_FUNCTION_COLOR  {255, 50, 50};
+const sf::Color FB_PATH_COLOR               {80, 80, 255};
+const sf::Color FB_NAME_COLOR               {0, 128, 64};
 
 // Display Stages Config
-const int STAGE_X_GAP {40};
-const int STAGE_Y_GAP {20};
+const uint16_t STAGE_X_GAP {40};
+const uint16_t STAGE_Y_GAP {20};
+
+// StackViewController
+const uint16_t STACK_X_START                    {10};
+const uint16_t STACK_Y_START                    {10};
+const uint16_t STACK_CHAR_SIZE                  {12};
+const uint16_t STACK_GAP_BETWEEN_CODE_AND_CODE  {5};
 
 #endif // CONFIG_H_INCLUDED

@@ -3,6 +3,8 @@
 
 #include <viewController/ViewController.h>
 #include <windows.h>
+#include <TextExt.h>
+#include <Resource.h>
 
 class StackViewController : public ViewController
 {
@@ -29,7 +31,10 @@ class StackViewController : public ViewController
 
         virtual void draw();
 
+        void addTextData(const string& functionBlockName, size_t functionStagePosition, const string& clickedFunction, size_t clickedFunctionStagePosition);
+
     private:
+        vector<TextExt> m_textExtVector;
 };
 
 #endif // STACKVIEWCONTROLLER_H

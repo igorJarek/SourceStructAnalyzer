@@ -11,7 +11,7 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
     absolutePath.setFont(Resource::instance().getFuncBlockFont());
     absolutePath.setString(parsedFilePtr->getAbsoluteFilePath());
     absolutePath.setCharacterSize(FB_CHAR_SIZE + 2);
-    absolutePath.setFillColor(sf::Color(80, 80, 255));
+    absolutePath.setFillColor(FB_PATH_COLOR);
     absolutePath.setPosition(0, startYPos);
 
     floatRect = absolutePath.getLocalBounds();
@@ -23,7 +23,7 @@ FunctionBlock::FunctionBlock(ParsedFilePtr parsedFilePtr, const string& function
     name.setFont(Resource::instance().getFuncBlockFont());
     name.setString(functionName);
     name.setCharacterSize(FB_CHAR_SIZE + 6);
-    name.setFillColor(sf::Color(0, 128, 64));
+    name.setFillColor(FB_NAME_COLOR);
     name.setPosition(0, startYPos);
 
     floatRect = name.getLocalBounds();

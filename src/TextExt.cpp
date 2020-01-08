@@ -294,7 +294,7 @@ Vector2f TextExt::findCharacterPos(std::size_t index) const
 
 FloatRect TextExt::getLocalBounds() const
 {
-    ensureGeometryUpdate();
+    //ensureGeometryUpdate();
 
     return m_bounds;
 }

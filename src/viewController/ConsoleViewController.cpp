@@ -74,6 +74,6 @@ void ConsoleViewController::keyboardReleased(const Event& event)
 
 void ConsoleViewController::draw()
 {
-    m_renderWindow.clear(sf::Color(50, 50, 50));
+    m_renderWindow.clear(sf::Color::Black);
     m_renderWindow.display();
 }

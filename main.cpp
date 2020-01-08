@@ -11,11 +11,10 @@ int main(int argc, char *argv[])
     mainViewControllerPtr->setIcon("icons/Main.png");
     WindowsManager::get().addMainViewController(mainViewControllerPtr);
 
-    sf::VideoMode consoleVideoMode(desktop.width, 400);
+    sf::VideoMode consoleVideoMode(desktop.width * 0.9f, 400);
     ViewControllerPtr consoleViewControllerPtr = make_shared<ConsoleViewController>(consoleVideoMode, "Console", sf::Style::Titlebar | sf::Style::Resize);
     consoleViewControllerPtr->setIcon("icons/Console.png");
     WindowsManager::get().addViewController(consoleViewControllerPtr, "console");
-
 
     sf::VideoMode stackVideoMode(400, 200);
     ViewControllerPtr stackViewControllerPtr = make_shared<StackViewController>(stackVideoMode, "Queue", sf::Style::Titlebar | sf::Style::Resize);

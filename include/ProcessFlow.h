@@ -45,7 +45,6 @@ class ProcessFlow
         string getAbsMainFilePath() const { return absoluteMainFilePath; }
 
         void addMainViewController(MainViewControllerPtr mainViewControllerPtr);
-        void notifyMainViewController(vector<FunctionBlockListPtr>& functionBlockVector);
 
         void analyze();
 
@@ -57,6 +56,7 @@ class ProcessFlow
         // stage 3
         void iteratesCallsQueue();
 
+        void notifyMainViewController(vector<FunctionBlockListPtr>& functionBlockVector);
         MainViewControllerPtr m_mainViewControllerPtr;
 
         string exePath;

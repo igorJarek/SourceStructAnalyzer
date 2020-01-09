@@ -82,10 +82,9 @@ void MainViewController::lootAtMainFunctionalBlock()
 
             sf::Vector2f fbPosition = mainFuntion.getPosition();
             sf::Vector2u fbSize = mainFuntion.getSize();
-            sf::Vector2u windowSize = m_renderWindow.getSize();
 
             sf::View currentView{m_renderWindow.getView()};
-            currentView.setCenter((windowSize.x - fbSize.x) / 2, fbPosition.y + 30);
+            currentView.setCenter(fbPosition.x + (fbSize.x / 2.0), fbPosition.y + (currentView.getSize().y / 2.0) - 15);
             m_renderWindow.setView(currentView);
         }
     }

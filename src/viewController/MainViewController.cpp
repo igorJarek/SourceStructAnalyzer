@@ -2,7 +2,7 @@
 
 MainViewController::MainViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
-    m_renderWindow.setFramerateLimit(60);
+    m_renderWindow.setFramerateLimit(MAIN_VIEW_FRAMERATE);
     sf::View view(sf::FloatRect(0.f, 0.f, mode.width, mode.height));
     m_renderWindow.setView(view);
 }
@@ -167,7 +167,7 @@ void MainViewController::midleButtonReleased(const Event& event)
 
 void MainViewController::rightButtonReleased(const Event& event)
 {
-    if(!moveViewToDefinition)
+    if(!m_animationMove.isActive())
     {
         sf::Vector2i mouseButtonReleasedPoint {event.mouseButton.x, event.mouseButton.y};
         sf::Vector2f pixel {m_renderWindow.mapPixelToCoords(mouseButtonReleasedPoint)};
@@ -187,17 +187,14 @@ void MainViewController::rightButtonReleased(const Event& event)
                 sf::Vector2f functionBlockPos = definitionFunctionBlock->getPosition();
                 sf::Vector2u functionBlockSize = definitionFunctionBlock->getSize();
                 sf::VideoMode vMode = sf::VideoMode::getDesktopMode();
-
-                moveView2Pos.x = functionBlockPos.x + (functionBlockSize.x / 2.0);
-                moveView2Pos.y = functionBlockPos.y + (vMode.height / 2.0) - (STAGE_Y_GAP / 2.0);
-
                 sf::View currentView {m_renderWindow.getView()};
                 sf::Vector2f viewCenterPos = currentView.getCenter();
-                increaseDelta.x = (moveView2Pos.x - viewCenterPos.x) / 60.0;
-                increaseDelta.y = (moveView2Pos.y - viewCenterPos.y) / 60.0;
 
-                frameCounter = 0;
-                moveViewToDefinition = true;
+                m_animationMove = AnimationMove(viewCenterPos,
+                                                sf::Vector2f(functionBlockPos.x + (functionBlockSize.x / 2.0),
+                                                             functionBlockPos.y + (vMode.height / 2.0) - (STAGE_Y_GAP / 2.0)),
+                                                MAIN_VIEW_FRAMERATE,
+                                                2.0);
 
                 StackViewController* stackViewControllerPtr = dynamic_cast<StackViewController*>(WindowsManager::get().getViewController("queue").get());
                 if(stackViewControllerPtr)
@@ -293,14 +290,15 @@ void MainViewController::keyboardReleased(const Event& event)
 void MainViewController::draw()
 {
     m_renderWindow.clear(sf::Color::Black);
-    if(moveViewToDefinition)
+    if(m_animationMove.isActive())
     {
-        if(frameCounter == 59)
-            moveViewToDefinition = false;
+        if(m_animationMove.getFrameCounter() == m_animationMove.getFrameCutOff() - 1)
+            m_animationMove.disable();
 
-        ++frameCounter;
+        m_animationMove.increaseCounter();
         sf::View currentView{m_renderWindow.getView()};
-        currentView.move(increaseDelta.x, increaseDelta.y);
+        sf::Vector2f moveDelta = m_animationMove.getDelta();
+        currentView.move(moveDelta.x, moveDelta.y);
         m_renderWindow.setView(currentView);
     }
     drawStages();

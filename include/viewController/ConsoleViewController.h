@@ -3,6 +3,7 @@
 
 #include <viewController/ViewController.h>
 #include <windows.h>
+#include <../../config.h>
 
 class ConsoleViewController : public ViewController
 {

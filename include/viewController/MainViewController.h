@@ -6,6 +6,7 @@
 #include <viewController/ViewController.h>
 #include <Typedefs.h>
 #include <FunctionBlock.h>
+#include <AnimationMove.h>
 
 class MainViewController : public ViewController
 {
@@ -51,10 +52,7 @@ class MainViewController : public ViewController
         int64_t wheelCount {0};
         double globalZoom {1.0};
 
-        bool moveViewToDefinition {false};
-        sf::Vector2f moveView2Pos;
-        sf::Vector2f increaseDelta;
-        uint32_t frameCounter {0};
+        AnimationMove m_animationMove;
 };
 
 #endif // MAINVIEWCONTROLLER_H

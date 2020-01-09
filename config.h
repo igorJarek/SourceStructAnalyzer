@@ -23,6 +23,11 @@ const sf::Color FB_NAME_COLOR               {0, 128, 64};
 const uint16_t STAGE_X_GAP {40};
 const uint16_t STAGE_Y_GAP {20};
 
+// MainViewController
+const uint16_t MAIN_VIEW_FRAMERATE              {60};
+const uint16_t STACK_VIEW_FRAMERATE             {60};
+const uint16_t CONSOLE_VIEW_FRAMERATE           {60};
+
 // StackViewController
 const uint16_t STACK_X_START                    {10};
 const uint16_t STACK_Y_START                    {10};

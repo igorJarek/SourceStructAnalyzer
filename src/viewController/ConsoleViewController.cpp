@@ -2,7 +2,7 @@
 
 ConsoleViewController::ConsoleViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
-    m_renderWindow.setFramerateLimit(CONSOLE_VIEW_FRAMERATE);
+    //m_renderWindow.setFramerateLimit(CONSOLE_VIEW_FRAMERATE);
     sf::WindowHandle windowHandle = m_renderWindow.getSystemHandle();
     ShowWindow(windowHandle, SW_MINIMIZE);
 }
@@ -74,6 +74,7 @@ void ConsoleViewController::keyboardReleased(const Event& event)
 
 void ConsoleViewController::draw()
 {
+    m_fps.update();
     m_renderWindow.clear(sf::Color::Black);
     m_renderWindow.display();
 }

@@ -1,6 +1,6 @@
 #include "viewController/ViewController.h"
 
-ViewController::ViewController(VideoMode& mode, const string& title, Uint32 style)
+ViewController::ViewController(VideoMode& mode, const string& title, Uint32 style) : m_title(title), m_fps(m_renderWindow, title)
 {
     m_renderWindow.create(mode, title, style, ContextSettings());
 }

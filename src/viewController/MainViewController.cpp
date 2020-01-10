@@ -2,7 +2,7 @@
 
 MainViewController::MainViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
-    m_renderWindow.setFramerateLimit(MAIN_VIEW_FRAMERATE);
+    //m_renderWindow.setFramerateLimit(MAIN_VIEW_FRAMERATE);
     sf::View view(sf::FloatRect(0.f, 0.f, mode.width, mode.height));
     m_renderWindow.setView(view);
 }
@@ -289,6 +289,7 @@ void MainViewController::keyboardReleased(const Event& event)
 
 void MainViewController::draw()
 {
+    m_fps.update();
     m_renderWindow.clear(sf::Color::Black);
     if(m_animationMove.isActive())
     {

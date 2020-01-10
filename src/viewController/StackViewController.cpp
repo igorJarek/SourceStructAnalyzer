@@ -2,7 +2,7 @@
 
 StackViewController::StackViewController(VideoMode& mode, const string& title, Uint32 style) : ViewController(mode, title, style)
 {
-    m_renderWindow.setFramerateLimit(STACK_VIEW_FRAMERATE);
+    //m_renderWindow.setFramerateLimit(STACK_VIEW_FRAMERATE);
     sf::WindowHandle windowHandle = m_renderWindow.getSystemHandle();
     ShowWindow(windowHandle, SW_MINIMIZE);
 }
@@ -97,6 +97,7 @@ void StackViewController::keyboardReleased(const Event& event)
 
 void StackViewController::draw()
 {
+    m_fps.update();
     m_renderWindow.clear(sf::Color::Black);
 
     for(TextExt& textExt : m_textExtVector)

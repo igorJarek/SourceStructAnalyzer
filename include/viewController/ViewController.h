@@ -2,6 +2,7 @@
 #define VIEWCONTROLLER_H
 
 #include <SFML/Graphics.hpp>
+#include <Fps.h>
 
 using namespace std;
 using namespace sf;
@@ -40,7 +41,9 @@ class ViewController
 
     protected:
         RenderWindow m_renderWindow;
+        const string m_title;
         Image m_iconImage;
+        Fps m_fps;
 
         bool m_visibility {true};
 };
